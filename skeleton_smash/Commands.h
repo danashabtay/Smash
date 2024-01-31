@@ -69,6 +69,8 @@ class ShowPidCommand : public BuiltInCommand {
   void execute() override;
 };
 
+class 
+
 class JobsList;
 class QuitCommand : public BuiltInCommand {
 // TODO: Add your data members public:
@@ -134,7 +136,8 @@ class ChmodCommand : public BuiltInCommand {
 
 class SmallShell {
  private:
-  // TODO: Add your data members
+  std::string prevCommand;
+  std::string currPrompt;
   SmallShell();
  public:
   Command *CreateCommand(const char* cmd_line);
@@ -148,7 +151,22 @@ class SmallShell {
   }
   ~SmallShell();
   void executeCommand(const char* cmd_line);
+  // newly added:
+  std::string getCurrPrompt();
+  void changePrevCommand(const std::string cmd);
+  void changePrompt(std::string prompt);
   // TODO: add extra methods as needed
+};
+
+
+/// BUILT-IN COMMANDS: ///
+
+class ChPromptCommand : public BuiltInCommand {
+  std::string prompt;
+ public:
+  ChPromptCommand(const char* cmd_line);
+  virtual ~ChPromptCommand() {}
+  void execute() override;
 };
 
 #endif //SMASH_COMMAND_H_

@@ -115,4 +115,39 @@ void SmallShell::executeCommand(const char *cmd_line) {
   // Command* cmd = CreateCommand(cmd_line);
   // cmd->execute();
   // Please note that you must fork smash process for some commands (e.g., external commands....)
+
+
+  this->changePrevCommand(cmd_line); /// change prevCommand to the recieved command
+}
+
+std::string SmallShell::getCurrPrompt(){
+  return this->currPrompt;
+}
+
+void SmallShell::changePrompt(std::string prompt){
+  this->currPrompt = prompt;
+}
+
+std::string removeFirstWord(std::string sentence){
+    std::string::size_type n = 0;
+    n = sentence.find_first_not_of( " \t", n );
+    n = sentence.find_first_of( " \t", n );
+    sentence.erase( 0,  sentence.find_first_not_of( " \t", n ) );
+    return sentence;
+}
+
+ChPromptCommand::ChPromptCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {
+// TODO: add your implementation
+  std::string nwsCmd = _trim(string(cmd_line));
+  nwsCmd = removeFirstWord(nwsCmd);
+  if (nwsCmd.length==0){
+    ///return error
+  }
+  std::string prompt = nwsCmd;
+  this->prompt = prompt;
+}
+
+ChPromptCommand::execute() : BuiltInCommand(cmd_line) {
+    SmallShell& smash = SmallShell::getInstance();
+    smash->changePrompt(this->prompt);
 }
