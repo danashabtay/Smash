@@ -140,8 +140,11 @@ ChPromptCommand::ChPromptCommand(const char* cmd_line) : BuiltInCommand(cmd_line
 // TODO: add your implementation
   std::string nwsCmd = _trim(string(cmd_line));
   nwsCmd = removeFirstWord(nwsCmd);
-  if (nwsCmd.length==0){
-    ///return error
+  if(nwsCmd.length()>0){
+    nwsCmd = nwsCmd + "> ";
+  }
+  else {
+    ///retuen default?
   }
   std::string prompt = nwsCmd;
   this->prompt = prompt;
