@@ -20,6 +20,12 @@ using namespace std;
 #define FUNC_EXIT()
 #endif
 
+/ Constants:
+
+#define SMASH_DEFAULT_PROMPT   "smash> "
+#define SMASH_BASH_PATH        "/bin/bash"
+
+
 string _ltrim(const std::string& s)
 {
   size_t start = s.find_first_not_of(WHITESPACE);
@@ -138,16 +144,14 @@ std::string removeFirstWord(std::string sentence){
 
 ChPromptCommand::ChPromptCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {
 // TODO: add your implementation
-  std::string nwsCmd = _trim(string(cmd_line));
-  nwsCmd = removeFirstWord(nwsCmd);
-  if(nwsCmd.length()>0){
-    nwsCmd = nwsCmd + "> ";
+  std::string cmd = _trim(string(this->command_without_bg));
+  cmd = removeFirstWord(cmd);
+  if(cmd.length()>0){
+    this->prompt = cmd + "> ";
   }
   else {
-    ///retuen default?
+    this->prompt = SMASH_DEFAULT_PROMPT;
   }
-  std::string prompt = nwsCmd;
-  this->prompt = prompt;
 }
 
 ChPromptCommand::execute() : BuiltInCommand(cmd_line) {

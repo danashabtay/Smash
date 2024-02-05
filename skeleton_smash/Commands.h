@@ -8,6 +8,8 @@
 
 class Command {
 // TODO: Add your data members
+const char* full_command;
+const char* command_without_bg;
  public:
   Command(const char* cmd_line);
   virtual ~Command();
