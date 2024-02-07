@@ -10,6 +10,7 @@ class Command {
 // TODO: Add your data members
 const char* full_command;
 const char* command_without_bg;
+bool is_bg_coomand;
  public:
   Command(const char* cmd_line);
   virtual ~Command();
@@ -17,6 +18,7 @@ const char* command_without_bg;
   //virtual void prepare();
   //virtual void cleanup();
   // TODO: Add your extra methods if needed
+  bool isBgCommand();
 };
 
 class BuiltInCommand : public Command {
@@ -52,6 +54,8 @@ class RedirectionCommand : public Command {
 
 class ChangeDirCommand : public BuiltInCommand {
 // TODO: Add your data members public:
+  bool isValidNumArg;
+  std::string dir;
   ChangeDirCommand(const char* cmd_line, char** plastPwd);
   virtual ~ChangeDirCommand() {}
   void execute() override;
@@ -140,6 +144,7 @@ class SmallShell {
  private:
   std::string prevCommand;
   std::string currPrompt;
+  std::string prevDir;
   SmallShell();
  public:
   Command *CreateCommand(const char* cmd_line);
@@ -157,6 +162,8 @@ class SmallShell {
   std::string getCurrPrompt();
   void changePrevCommand(const std::string cmd);
   void changePrompt(std::string prompt);
+  std::string getPrevDir();
+  void changePrevDir(std::string Dir);
   // TODO: add extra methods as needed
 };
 
