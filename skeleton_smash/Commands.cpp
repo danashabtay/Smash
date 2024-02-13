@@ -20,7 +20,7 @@ using namespace std;
 #define FUNC_EXIT()
 #endif
 
-/ Constants:
+// Constants:
 
 #define SMASH_DEFAULT_PROMPT   "smash> "
 #define SMASH_BASH_PATH        "/bin/bash"
@@ -249,6 +249,24 @@ ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : Buil
   }
 }
 
+changeDirectory(std::string path) {
+  char buffer[SMASH_MAX_PATH + 1] = "";
+    if (!getcwd(buffer, SMASH_MAX_PATH))
+    {
+        cerr << "pwd error" << endl;
+    }
+        // call the syscall. if succeded, save the old directory:
+        if (chdir(path.c_str()) != -1)
+        {
+            SmallShell &smash = SmallShell::getInstance();
+            smash.changePrevDir(string(buffer));
+        }
+        else{
+            SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CHDIR);
+            return;
+        }
+}
+
 ChangeDirCommand::execute() {
   if(!this->isValidNumArg){
     cout << "smash error: cd: too many arguments" << endl;
@@ -264,26 +282,11 @@ ChangeDirCommand::execute() {
     }
     // there is a prev dir:
     else{
-      cout << prevDir << endl; 
+      changeDirectory(prevDir); 
     }
   }
   // got a dir to chage to:
   else {
-    char buffer[SMASH_MAX_PATH + 1] = "";
-    if (!getcwd(buffer, SMASH_MAX_PATH))
-    {
-        cerr << "pwd error" << endl;
-    }
-        // call the syscall. if succeded, save the old directory:
-        if (chdir(this->dir.c_str()) != -1)
-        {
-            SmallShell &smash = SmallShell::getInstance();
-            smash.changePrevDir(string(buffer));
-        }
-        else{
-            SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CHDIR);
-            return;
-        }
-    
+    changeDirectory(this->dir);
   }
 }
