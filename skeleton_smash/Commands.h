@@ -11,6 +11,8 @@ class Command {
 const char* full_command;
 const char* command_without_bg;
 bool is_bg_coomand;
+bool is_Timed;
+int duration;
  public:
   Command(const char* cmd_line);
   virtual ~Command();
@@ -19,6 +21,9 @@ bool is_bg_coomand;
   //virtual void cleanup();
   // TODO: Add your extra methods if needed
   bool isBgCommand();
+  std::string getFullCommand();
+  bool getIsTimed();
+  int getDuration();
 };
 
 class BuiltInCommand : public Command {
@@ -91,14 +96,41 @@ class JobsList {
 
   class JobEntry {
    // TODO: Add your data members
+  private:
+  int job_id;
+  pid_t pid;
+  bool is_stooped_by_user;
+  bool is_timed;
+  time_t insert_time;
+  int duration;
+  std::string command;
+  public:
+  JobEntry(int job_id, pid_t pid, bool is_stooped_by_user, bool is_timed, int duration, std::string command);
+  JobEntry(JobEntry &other);
+  JobEntry& operator=(JobEntry &other);
+  ~JobEntry();
+  int getJobId();
+  pid_t getPid();
+  bool isStooped();
+  bool isTimed();
+  time_t getInsertTime();
+  std::string getCommand();
+  int getDuration();
+  void setAsResumed();
+  void setAsStopped();
+  bool operator>(const JobEntry& other);
+  bool operator<(const JobEntry& other);
+  bool operator==(const JobEntry& other);
+  bool operator!=(const JobEntry& other);
   };
 
-   
+ private:
+    std::vector<std::shared_ptr<JobEntry>> jobsList;
  // TODO: Add your data members
  public:
   JobsList();
   ~JobsList();
-  void addJob(Command* cmd, bool isStopped = false);
+  void addJob(Command* cmd, const pid_t& pid, bool isStopped = false);
   void printJobsList();
   void killAllJobs();
   void removeFinishedJobs();
@@ -106,7 +138,9 @@ class JobsList {
   void removeJobById(int jobId);
   JobEntry * getLastJob(int* lastJobId);
   JobEntry *getLastStoppedJob(int *jobId);
+  int getMaxJobId();
   // TODO: Add extra methods or modify exisitng ones as needed
+
 };
 
 class JobsCommand : public BuiltInCommand {

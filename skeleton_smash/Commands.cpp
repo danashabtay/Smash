@@ -107,8 +107,30 @@ std::string getFirstWord(const char* cmd_line){
 
 // Command:
 
+int extractNumber(const std::string& str) {
+    int number = 0;
+    bool foundNumber = false;
+
+    for (char c : str) {
+        if (isdigit(c)) {
+            foundNumber = true;
+            number = number * 10 + (c - '0');
+        } else if (foundNumber) {
+            // If we already found the number and encounter a non-digit character, break
+            break;
+        }
+    }
+
+    return number;
+}
+
   Command::Command(const char* cmd_line) : full_command(cmd_line), command_without_bg(cmd_line), is_bg_coomand(false) {
     this->full_command = cmd_line;
+    this->duration = extractNumber(cmd_line);
+    this->isTimed = false;
+    if(duration){
+      this->isTimed=true;
+    }
     if(_isBackgroundComamnd(cmd_line)){
       this->is_bg_coomand = true;
       this->command_without_bg = _removeBackgroundSign(cmd_line;)
@@ -124,11 +146,18 @@ std::string getFirstWord(const char* cmd_line){
     return this->is_bg_coomand;
   }
 
+  std::string Command::getFullCommand(){
+    return this->full_command;
+  }
 
 
-
-
-
+  bool Command::getIsTimed(){
+    return this->is_Timed;
+  }
+  
+  int Command::getDuration(){
+    return this->duration;
+  }
 
 
 // SmallShell:
@@ -157,6 +186,9 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   }
   else if (firstWord.compare("showpid") == 0) {
     return new ShowPidCommand(cmd_line);
+  }
+  else if (firstWord.compare("cd") == 0) {
+    return new ChangeDirCommand(cmd_line, nullptr);
   }
  
   else if ...
@@ -194,6 +226,119 @@ std::string SmallShell::getPrevDir(){
 void SmallShell::changePrevDir(std::string Dir){
   this->prevDir = Dir;
 }
+
+
+
+
+//jobList:
+ 
+ JobsList::JobEntry::JobEntry(int job_id, pid_t pid, bool is_stooped_by_user, bool is_timed, int duration, std::string command) 
+ : job_id(job_id), pid(pid), is_stooped_by_user(is_stooped_by_user), is_timed(is_timed), duration(duration), command(command); {
+    time_t time1;
+    this->insert_time = time(&time1);
+    if(time1 != this->insert_time){
+        cout <<"time error" << endl;
+    }
+ }
+
+JobsList::JobEntry::JobEntry(const JobsList::JobEntry &other){
+  this->job_id(other.getJobId());
+  this->pid(other.getPid());
+  this->is_stooped_by_user(other.isStooped());
+  this->is_timed(other.is_timed());
+  this->insert_time(other.getInsertTime());
+  this->duration(other.getDuration());
+  this->command(other.getCommand());
+}
+
+JobsList::JobEntry::JobEntry& operator=(const JobsList::JobEntry &other) {
+  if(this==&other){
+    return *this;
+  }
+  this->job_id=other.getJobId();
+  this->pid=other.getPid();
+  this->is_stooped_by_user=other.isStooped();
+  this->is_timed=other.is_timed();
+  this->insert_time=other.getInsertTime();
+  this->duration=other.getDuration();
+  this->command=other.getCommand();
+
+  return *this;
+}
+
+JobsList::JobEntry::~JobEntry() {}
+
+int JobsList::JobEntry::getJobId(){
+  return this->job_id;
+}
+
+pid_t JobsList::JobEntry::getPid(){
+  return this->pid
+}
+
+bool JobsList::JobEntry::isStooped(){
+  return this->is_stooped_by_user;
+}
+
+bool JobsList::JobEntry::isTimed(){
+  return this->is_timed;
+}
+
+time_t JobsList::JobEntry::getInsertTime(){
+  return this->insert_time;
+}
+
+std::string JobsList::JobEntry::getCommand(){
+  return this->command;
+}
+
+int JobsList::JobEntry::getDuration(){
+  return this->duration;
+}
+
+bool JobsList::JobEntry::operator>(const JobsList::JobEntry& other){
+    return this->getId() > other.getId();
+}
+
+bool JobsList::JobEntry::operator<(const JobsList::JobEntry& other){
+    return this->getId() < other.getId();
+}
+
+bool JobsList::JobEntry::operator==(const JobsList::JobEntry& other){
+    return this->getId() == other.getId();
+}
+
+bool JobsList::JobEntry::operator!=(const JobsList::JobEntry& other){
+    return this->getId() != other.getId();
+}
+
+void JobsList::JobEntry::setAsStopped(){
+    this->is_stopped = true;
+}
+
+void JobsList::JobEntry::setAsResumed(){
+    this->is_stopped = false;
+}
+
+JobsList::JobsList() : jobsList() {}
+
+JobsList::~JobsList() {}
+
+
+void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped = false){
+  this->removeFinishedJobs();
+  int newJobId = this->getMaxJobId+1;
+  shared_ptr<JobEntry> new_job(nullptr);
+    try{
+        new_job = make_shared<JobEntry>(newJobId,pid,isStooped,cmd.getIsTimed(),cmd.getDuration());
+    }
+    catch(const std::bad_alloc& e){
+        cout << e.what() << endl;
+    }
+    this->jobs.push_back(new_job);
+}
+  
+void JobsList::printJobsList();
 
 // chprompt command:
 
