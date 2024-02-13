@@ -28,7 +28,7 @@ using namespace std;
 #define SMASH_PRINT_WITH_PERROR(ERR, CMD)                       perror(ERR(CMD));
 #define CHDIR     "chdir"
 #define SMASH_SYSCALL_FAILED_ERROR(CMD)                         "smash error: " CMD " failed"
-
+#define WHITESPACE  " "
 
 
 
@@ -101,7 +101,7 @@ std::string removeFirstWord(std::string sentence){
 }
 
 std::string getFirstWord(const char* cmd_line){
-  return cmd_s.substr(0, cmd_s.find_first_of(" \n"));
+  return cmd_line.substr(0, cmd_line.find_first_of(" \n"));
 }
 
 
