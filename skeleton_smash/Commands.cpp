@@ -464,5 +464,5 @@ void ChangeDirCommand::execute() {
 
 BuiltInCommand::BuiltInCommand(const char *cmd_line) : Command(cmd_line)
 {
-    this->is_bg_coomand = false;
+    this->isBgCommand() = false;
 }
