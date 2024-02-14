@@ -121,10 +121,10 @@ class JobsList {
   int getDuration();
   void setAsResumed();
   void setAsStopped();
-  bool operator>(const JobEntry& other);
-  bool operator<(const JobEntry& other);
-  bool operator==(const JobEntry& other);
-  bool operator!=(const JobEntry& other);
+  bool operator>(JobEntry& other);
+  bool operator<(JobEntry& other);
+  bool operator==(JobEntry& other);
+  bool operator!=(JobEntry& other);
   };
 
  private:

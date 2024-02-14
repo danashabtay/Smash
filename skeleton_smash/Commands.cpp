@@ -135,7 +135,7 @@ int extractNumber(const std::string& str) {
     if(_isBackgroundComamnd(cmd_line)){
       this->is_bg_coomand = true;
       char* str = cmd_line;
-      this->command_without_bg = _removeBackgroundSign(str);
+      _removeBackgroundSign(str);
     }
     else{
         this->is_bg_coomand = false;
@@ -294,19 +294,19 @@ int JobsList::JobEntry::getDuration(){
   return this->duration;
 }
 
-bool JobsList::JobEntry::operator>(const JobsList::JobEntry& other){
+bool JobsList::JobEntry::operator>(JobsList::JobEntry& other){
     return this->getJobId() > other.getJobId();
 }
 
-bool JobsList::JobEntry::operator<(const JobsList::JobEntry& other){
+bool JobsList::JobEntry::operator<( JobsList::JobEntry& other){
     return this->getJobId() < other.getJobId();
 }
 
-bool JobsList::JobEntry::operator==(const JobsList::JobEntry& other){
+bool JobsList::JobEntry::operator==( JobsList::JobEntry& other){
     return this->getJobId() == other.getJobId();
 }
 
-bool JobsList::JobEntry::operator!=(const JobsList::JobEntry& other){
+bool JobsList::JobEntry::operator!=( JobsList::JobEntry& other){
     return this->getJobId() != other.getJobId();
 }
 
