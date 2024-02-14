@@ -16,7 +16,7 @@ bool is_Timed;
 int duration;
  public:
   Command(const char* cmd_line);
-  virtual ~Command();
+  virtual ~Command() = default;
   virtual void execute() = 0;
   //virtual void prepare();
   //virtual void cleanup();

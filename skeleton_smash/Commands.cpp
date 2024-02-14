@@ -199,9 +199,9 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     return new ChangeDirCommand(cmd_line, nullptr);
   }
  // add more commands
-  else {
-    return new ExternalCommand(cmd_line);
-  }
+  // else {
+  //   return new ExternalCommand(cmd_line);
+  // }
   return nullptr;
 }
 
@@ -458,4 +458,11 @@ void ChangeDirCommand::execute() {
   else {
     changeDirectory(this->dir);
   }
+}
+
+//-------- BuiltInCommand Class:
+
+BuiltInCommand::BuiltInCommand(const char *cmd_line) : Command(cmd_line)
+{
+    this->is_bg_coomand = false;
 }
