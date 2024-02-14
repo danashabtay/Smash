@@ -245,17 +245,10 @@ void SmallShell::changePrevDir(std::string Dir){
     }
  }
 
-JobsList::JobEntry::JobEntry(const JobsList::JobEntry &other){
-  this->job_id(other->getJobId());
-  this->pid(other->getPid());
-  this->is_stooped_by_user(other->isStooped());
-  this->is_timed(other->is_timed());
-  this->insert_time(other->getInsertTime());
-  this->duration(other->getDuration());
-  this->command(other->getCommand());
+JobsList::JobEntry::JobEntry(const JobsList::JobEntry &other) : this->job_id(other.getJobId()), this->pid(other.getPid()), this->is_stooped_by_user(other.isStooped()), this->is_timed(other.is_timed()), this->insert_time(other.getInsertTime()), this->duration(other.getDuration()), this->command(other.getCommand());{
 }
 
-JobsList::JobEntry& JobsList::JobEntry::operator=(const JobsList::JobEntry &other) {
+JobsList::JobEntry& JobsList::JobEntry::operator=(JobsList::JobEntry &other) {
   if(this==&other){
     return *this;
   }
@@ -317,11 +310,11 @@ bool JobsList::JobEntry::operator!=(const JobsList::JobEntry& other){
 }
 
 void JobsList::JobEntry::setAsStopped(){
-    this->isStooped = true;
+    this->is_stooped_by_user = true;
 }
 
 void JobsList::JobEntry::setAsResumed(){
-    this->isStooped = false;
+    this->is_stooped_by_user = false;
 }
 
 JobsList::JobsList() : jobsList() {}
@@ -347,7 +340,7 @@ void JobsList::printJobsList() {} ///add here!!!!!!!!!
 // chprompt command:
 
 ChPromptCommand::ChPromptCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {
-  std::string cmd = _trim(string(this.getCommandWOBg()));
+  std::string cmd = _trim(string(this->getCommandWOBg()));
   cmd = removeFirstWord(cmd);
   if(cmd.length()>0){
     this->prompt = cmd + "> ";
@@ -388,7 +381,7 @@ void GetCurrDirCommand::execute() {
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line), isValidNumArg(false), dir("") {
   std::string cmd = _trim(string(this->command_without_bg));
   cmd = removeFirstWord(cmd);
-  if(removeFirstWord(cmd).length > 0 ) { // too many arguments
+  if(removeFirstWord(cmd).length() > 0 ) { // too many arguments
     return;
   }
   else {
@@ -417,13 +410,14 @@ void changeDirectory(std::string path) {
 }
 
 void ChangeDirCommand::execute() {
+  SmallShell &smash = SmallShell::getInstance();
+  prevDir = smash.getPrevDir();
+  
   if(!this->isValidNumArg){
     cout << "smash error: cd: too many arguments" << endl;
     return;
   }
   else if (this->dir.compare("-") == 0) {
-    SmallShell &smash = SmallShell::getInstance();
-    prevDir = smash.getPrevDir();
     // in case that cd command has not yet been called:
     if(prevDir.length() == 0) {
         cout << "smash error: cd: OLDPWD not set" << endl;
