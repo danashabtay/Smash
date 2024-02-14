@@ -339,7 +339,7 @@ void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
   
   bool JobsList::JobEntry::jobWasStopped()
 {
-    return this->isStopped;
+    return this->isStopped();
 }
 
 void JobsList::printJobsList() {
