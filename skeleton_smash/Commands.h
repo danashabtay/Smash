@@ -146,7 +146,9 @@ class JobsList {
   class JobIsBigger
     {
     public:
-        bool operator()(const std::shared_ptr<JobEntry>& job1, const std::shared_ptr<JobEntry>& job2);
+        bool operator()(const std::shared_ptr<JobEntry>& job1, const std::shared_ptr<JobEntry>& job2) {
+              return ( (*job1 < *job2) && !(*job2 < *job1) );
+        }
     };
   // TODO: Add extra methods or modify exisitng ones as needed
 

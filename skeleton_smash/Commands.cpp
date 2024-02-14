@@ -5,6 +5,7 @@
 #include <sstream>
 #include <sys/wait.h>
 #include <iomanip>
+#include <algorithm>
 #include "Commands.h"
 
 
@@ -318,11 +319,6 @@ void JobsList::JobEntry::setAsResumed(){
     this->is_stooped_by_user = false;
 }
 
-bool JobsList::JobIsBigger::operator()(const std::shared_ptr<JobsList::JobEntry>&job1, const std::shared_ptr<JobsList::JobEntry>& job2)
-{
-    return ( (*job1 < *job2) && !(*job2 < *job1) );
-}
-
 JobsList::JobsList() : jobsList() {}
 
 JobsList::~JobsList() {}
@@ -341,7 +337,7 @@ void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
     this->jobsList.push_back(new_job);
 }
   
-  bool JobsList::JobEntry::jobWasStopped() const
+  bool JobsList::JobEntry::jobWasStopped()
 {
     return this->is_stopped;
 }
