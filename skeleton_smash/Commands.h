@@ -121,6 +121,7 @@ class JobsList {
   int getDuration();
   void setAsResumed();
   void setAsStopped();
+  bool jobWasStopped();
   bool operator>(JobEntry& other);
   bool operator<(JobEntry& other);
   bool operator==(JobEntry& other);
@@ -142,6 +143,11 @@ class JobsList {
   JobEntry * getLastJob(int* lastJobId);
   JobEntry *getLastStoppedJob(int *jobId);
   int getMaxJobId();
+  class JobIsBigger
+    {
+    public:
+        bool operator()(const std::shared_ptr<JobEntry>& job1, const std::shared_ptr<JobEntry>& job2);
+    };
   // TODO: Add extra methods or modify exisitng ones as needed
 
 };

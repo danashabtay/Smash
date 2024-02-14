@@ -318,6 +318,11 @@ void JobsList::JobEntry::setAsResumed(){
     this->is_stooped_by_user = false;
 }
 
+bool JobsList::JobIsBigger::operator()(const std::shared_ptr<JobsList::JobEntry>&job1, const std::shared_ptr<JobsList::JobEntry>& job2)
+{
+    return ( (*job1 < *job2) && !(*job2 < *job1) );
+}
+
 JobsList::JobsList() : jobsList() {}
 
 JobsList::~JobsList() {}
@@ -336,7 +341,31 @@ void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
     this->jobsList.push_back(new_job);
 }
   
-void JobsList::printJobsList() {} ///add here!!!!!!!!!
+  bool JobsList::JobEntry::jobWasStopped() const
+{
+    return this->is_stopped;
+}
+
+void JobsList::printJobsList() {
+  std::sort(jobsList.begin(), jobsList.end(), JobsList::JobIsBigger());
+    for(const auto& job: this->jobsList){
+        string jobToPrint = job->getCommand();
+        time_t current_time;
+        time(&current_time);
+        time_t elapsed_time = difftime(current_time, job->getInsertTime());
+
+        if (job->isTimed())
+        {
+            jobToPrint = "timeout " + std::to_string(job->getDuration()) + " " + job->getCommand();
+        }
+
+        cout << "[" <<  job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
+        if(job->jobWasStopped()){
+            cout << " (stopped)";
+        }
+        cout << endl;
+    }
+} 
 
 // chprompt command:
 
