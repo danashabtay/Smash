@@ -196,8 +196,11 @@ SmallShell::~SmallShell() {
 Command * SmallShell::CreateCommand(const char* cmd_line) {
 
   string cmd_s = _trim(string(cmd_line));
-  string firstWord = getFirstWord(cmd_s);
-
+  if (cmd_s[cmd_s.length() - 1] == '&'){
+        cmd_s = _trim(cmd_s.substr(0, cmd_s.length() - 1));
+    }
+  string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
+  
   if (firstWord.compare("chprompt") == 0) {
     return new ChPromptCommand(cmd_line);
   }
