@@ -102,19 +102,19 @@ class JobsList {
   private:
   int job_id;
   pid_t pid;
-  bool is_stooped_by_user;
+  bool is_stopped_by_user;
   bool is_timed;
   time_t insert_time;
   int duration;
   std::string command;
   public:
-  JobEntry(int job_id, pid_t pid, bool is_stooped_by_user, bool is_timed, int duration, std::string command);
+  JobEntry(int job_id, pid_t pid, bool is_stopped_by_user, bool is_timed, int duration, std::string command);
   //JobEntry(const JobEntry &other);
   JobEntry& operator=(JobEntry &other);
   ~JobEntry();
   int getJobId();
   pid_t getPid();
-  bool isStooped();
+  bool isStopped();
   bool isTimed();
   time_t getInsertTime();
   std::string getCommand();

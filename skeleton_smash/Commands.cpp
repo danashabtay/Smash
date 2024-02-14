@@ -256,7 +256,7 @@ JobsList::JobEntry& JobsList::JobEntry::operator=(JobsList::JobEntry &other) {
   }
   this->job_id=other.getJobId();
   this->pid=other.getPid();
-  this->is_stooped_by_user=other.isStooped();
+  this->is_stooped_by_user=other.isStopped();
   this->is_timed=other.isTimed();
   this->insert_time=other.getInsertTime();
   this->duration=other.getDuration();
@@ -275,8 +275,8 @@ pid_t JobsList::JobEntry::getPid(){
   return this->pid;
 }
 
-bool JobsList::JobEntry::isStooped(){
-  return this->is_stooped_by_user;
+bool JobsList::JobEntry::isStopped(){
+  return this->is_stopped_by_user;
 }
 
 bool JobsList::JobEntry::isTimed(){
@@ -339,7 +339,7 @@ void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
   
   bool JobsList::JobEntry::jobWasStopped()
 {
-    return this->is_stopped;
+    return this->isStopped;
 }
 
 void JobsList::printJobsList() {
