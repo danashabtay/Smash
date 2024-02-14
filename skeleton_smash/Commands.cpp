@@ -380,7 +380,7 @@ void JobsList::removeFinishedJobs() {
   for (auto it = jobsList.begin(); it != jobsList.end();)
   {
     int status = 0;
-    pid_t child_pid = waitpid(it.getPid(), &status, WNOHANG);
+    pid_t child_pid = waitpid(*it->getPid(), &status, WNOHANG);
     if (child_pid > 0) {
       it = jobsList.erase(it);
     }
