@@ -189,15 +189,15 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   if (firstWord.compare("chprompt") == 0) {
     return new ChPromptCommand(cmd_line);
   }
-  else if (firstWord.compare("pwd") == 0) {
-    return new GetCurrDirCommand(cmd_line);
-  }
-  else if (firstWord.compare("showpid") == 0) {
-    return new ShowPidCommand(cmd_line);
-  }
-  else if (firstWord.compare("cd") == 0) {
-    return new ChangeDirCommand(cmd_line, nullptr);
-  }
+  // else if (firstWord.compare("pwd") == 0) {
+  //   return new GetCurrDirCommand(cmd_line);
+  // }
+  // else if (firstWord.compare("showpid") == 0) {
+  //   return new ShowPidCommand(cmd_line);
+  // }
+  // else if (firstWord.compare("cd") == 0) {
+  //   return new ChangeDirCommand(cmd_line, nullptr);
+  // }
  // add more commands
   // else {
   //   return new ExternalCommand(cmd_line);
@@ -494,6 +494,6 @@ void ChPromptCommand::execute() {
 
 //-------- BuiltInCommand Class:
 
-// BuiltInCommand::BuiltInCommand(const char *cmd_line) : Command(cmd_line) {
-//   this->is_bg_coomand=false;
-// }
+BuiltInCommand::BuiltInCommand(const char *cmd_line) : Command(cmd_line) {
+  this->is_bg_coomand=false;
+}
