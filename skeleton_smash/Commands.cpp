@@ -379,7 +379,7 @@ void GetCurrDirCommand::execute() {
 // cd:
 
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line), isValidNumArg(false), dir("") {
-  std::string cmd = _trim(string(this->command_without_bg));
+  std::string cmd = _trim(string(this->getCommandWOBg()));
   cmd = removeFirstWord(cmd);
   if(removeFirstWord(cmd).length() > 0 ) { // too many arguments
     return;
