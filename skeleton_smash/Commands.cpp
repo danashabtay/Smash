@@ -225,6 +225,10 @@ void SmallShell::changePrompt(std::string prompt){
   this->currPrompt = prompt;
 }
 
+void SmallShell::changePrevCommand(const std::string cmd){
+  this->prevCommand = cmd;
+}
+
 std::string SmallShell::getPrevDir(){
   return this->prevDir;
 }
@@ -295,6 +299,14 @@ int JobsList::JobEntry::getDuration(){
   return this->duration;
 }
 
+int JobsList::JobEntry::getMaxJobId() {
+  int max_id = 0;
+    for(const auto& job: this->jobsList){
+        max_id = max(max_id, job->getJobId());
+    }
+    return max_id;
+}
+
 bool JobsList::JobEntry::operator>(JobsList::JobEntry& other){
     return this->getJobId() > other.getJobId();
 }
@@ -362,6 +374,29 @@ void JobsList::printJobsList() {
         cout << endl;
     }
 } 
+
+void jobList::removeFinishedJobs() {
+  void JobsList::removeFinishedJobs()
+{
+  for (auto it = jobsList.begin(); it != jobsList.end();)
+  {
+    int status = 0;
+    pid_t child_pid = waitpid(it->getPid(), &status, WNOHANG);
+    if (child_pid > 0) {
+      it = jobsList.erase(it);
+    }
+    else
+    {
+      if (child_pid == -1)
+      {
+        SMASH_SYSCALL_FAILED_ERROR("waitpid");
+      }
+      ++it;
+    }
+  }
+}
+}
+
 
 // chprompt command:
 

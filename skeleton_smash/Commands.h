@@ -120,6 +120,7 @@ class JobsList {
   time_t getInsertTime();
   std::string getCommand();
   int getDuration();
+  int getMaxJobId();
   void setAsResumed();
   void setAsStopped();
   bool jobWasStopped();
