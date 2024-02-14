@@ -103,7 +103,12 @@ std::string removeFirstWord(std::string sentence){
 }
 
 std::string getFirstWord(std::string cmd_line){
-  return cmd_line.substr(0, cmd_line.find_first_of(" \n"));
+    if (!cmd_line)
+    {
+        throw std::invalid_argument("NULL argument");
+    }
+    string cmd_s = _trim(cmd_line);
+    return cmd_s.substr(0, cmd_s.find_first_of(" \n"));
 }
 
 
@@ -127,16 +132,15 @@ int extractNumber(const std::string& str) {
 }
 
   Command::Command(const char* cmd_line) : full_command(cmd_line), command_without_bg(cmd_line), is_bg_coomand(false) {
-    this->full_command = cmd_line;
+    this->full_command = _trim(full_command.substr(0, full_command.length()-1));
     this->duration = extractNumber(cmd_line);
     this->is_Timed = false;
     if(duration){
       this->is_Timed=true;
     }
-    if(_isBackgroundComamnd(cmd_line)){
+    if(_isBackgroundComamnd(full_command)){
       this->is_bg_coomand = true;
-      char* str =  const_cast<char*>(cmd_line);
-      _removeBackgroundSign(str);
+      _removeBackgroundSign(full_command);
     }
     else{
         this->is_bg_coomand = false;
