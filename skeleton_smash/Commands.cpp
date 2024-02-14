@@ -134,7 +134,8 @@ int extractNumber(const std::string& str) {
     }
     if(_isBackgroundComamnd(cmd_line)){
       this->is_bg_coomand = true;
-      this->command_without_bg = _removeBackgroundSign(const_cast<char*>(cmd_line));
+      char* str = cmd_line;
+      this->command_without_bg = _removeBackgroundSign(str);
     }
     else{
         this->is_bg_coomand = false;
@@ -245,8 +246,8 @@ void SmallShell::changePrevDir(std::string Dir){
     }
  }
 
-JobsList::JobEntry::JobEntry(const JobsList::JobEntry &other) : job_id(other.getJobId()), pid(other.getPid()), is_stooped_by_user(other.isStooped()), is_timed(other.is_timed()), insert_time(other.getInsertTime()), duration(other.getDuration()), command(other.getCommand()) {
-}
+// JobsList::JobEntry::JobEntry(const JobsList::JobEntry &other) : job_id(other.getJobId()), pid(other.getPid()), is_stooped_by_user(other.isStooped()), is_timed(other.is_timed()), insert_time(other.getInsertTime()), duration(other.getDuration()), command(other.getCommand()) {
+// }
 
 JobsList::JobEntry& JobsList::JobEntry::operator=(JobsList::JobEntry &other) {
   if(this==&other){
@@ -327,7 +328,7 @@ void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
   int newJobId = this->getMaxJobId()+1;
   shared_ptr<JobEntry> new_job(nullptr);
     try{
-        new_job = make_shared<JobEntry>(newJobId,pid,isStopped,cmd->getIsTimed(),cmd->getDuration());
+        new_job = make_shared<JobEntry>(newJobId,pid,isStopped,cmd->getIsTimed(),cmd->getDuration(),cmd->getFullCommand());
     }
     catch(const std::bad_alloc& e){
         cout << e.what() << endl;
@@ -350,7 +351,7 @@ ChPromptCommand::ChPromptCommand(const char* cmd_line) : BuiltInCommand(cmd_line
   }
 }
 
-void ChPromptCommand::execute() : BuiltInCommand(cmd_line) {
+void ChPromptCommand::execute() {
     SmallShell& smash = SmallShell::getInstance();
     smash.changePrompt(this->prompt);
 }
