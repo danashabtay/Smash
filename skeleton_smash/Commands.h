@@ -11,9 +11,10 @@ class Command {
 // TODO: Add your data members
 const char* full_command;
 const char* command_without_bg;
-bool is_bg_coomand;
 bool is_Timed;
 int duration;
+protected:
+bool is_bg_coomand;
  public:
   Command(const char* cmd_line);
   virtual ~Command() = default;
@@ -26,7 +27,6 @@ int duration;
   std::string getCommandWOBg();
   bool getIsTimed();
   int getDuration();
-  void setAsFG();
 };
 
 class BuiltInCommand : public Command {

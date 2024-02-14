@@ -149,10 +149,6 @@ int extractNumber(const std::string& str) {
     return this->is_bg_coomand;
   }
 
-  void Command::setAsFG() {
-    this->is_bg_coomand=false;  
-  }
-
   std::string Command::getFullCommand(){
     return this->full_command;
   }
@@ -467,5 +463,5 @@ void ChangeDirCommand::execute() {
 //-------- BuiltInCommand Class:
 
 BuiltInCommand::BuiltInCommand(const char *cmd_line) : Command(cmd_line) {
-  this->setasFG();
+  this->is_bg_coomand=false;
 }
