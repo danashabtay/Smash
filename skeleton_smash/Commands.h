@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <string.h>
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
@@ -195,6 +196,7 @@ class SmallShell {
   std::string prevDir;
   SmallShell();
  public:
+  JobsList jobs;
   Command *CreateCommand(const char* cmd_line);
   SmallShell(SmallShell const&)      = delete; // disable copy ctor
   void operator=(SmallShell const&)  = delete; // disable = operator
