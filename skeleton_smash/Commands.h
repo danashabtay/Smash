@@ -26,6 +26,7 @@ int duration;
   std::string getCommandWOBg();
   bool getIsTimed();
   int getDuration();
+  void setAsFG();
 };
 
 class BuiltInCommand : public Command {
