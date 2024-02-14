@@ -238,8 +238,8 @@ void SmallShell::changePrevDir(std::string Dir){
 
 //jobList:
  
- JobsList::JobEntry::JobEntry(int job_id, pid_t pid, bool is_stooped_by_user, bool is_timed, int duration, std::string command) 
- : job_id(job_id), pid(pid), is_stooped_by_user(is_stooped_by_user), is_timed(is_timed), duration(duration), command(command) {
+ JobsList::JobEntry::JobEntry(int job_id, pid_t pid, bool is_stopped_by_user, bool is_timed, int duration, std::string command) 
+ : job_id(job_id), pid(pid), is_stopped_by_user(is_stopped_by_user), is_timed(is_timed), duration(duration), command(command) {
     time_t time1;
     this->insert_time = time(&time1);
     if(time1 != this->insert_time){
@@ -256,7 +256,7 @@ JobsList::JobEntry& JobsList::JobEntry::operator=(JobsList::JobEntry &other) {
   }
   this->job_id=other.getJobId();
   this->pid=other.getPid();
-  this->is_stooped_by_user=other.isStopped();
+  this->is_stopped_by_user=other.isStopped();
   this->is_timed=other.isTimed();
   this->insert_time=other.getInsertTime();
   this->duration=other.getDuration();
@@ -312,11 +312,11 @@ bool JobsList::JobEntry::operator!=( JobsList::JobEntry& other){
 }
 
 void JobsList::JobEntry::setAsStopped(){
-    this->is_stooped_by_user = true;
+    this->is_stopped_by_user = true;
 }
 
 void JobsList::JobEntry::setAsResumed(){
-    this->is_stooped_by_user = false;
+    this->is_stopped_by_user = false;
 }
 
 JobsList::JobsList() : jobsList() {}
