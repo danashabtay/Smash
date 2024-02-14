@@ -160,6 +160,11 @@ int extractNumber(const std::string& str) {
     return this->duration;
   }
 
+  std::string Command::getCommandWOBg(){
+    return this->command_without_bg;
+  }
+
+
 
 // SmallShell:
 
@@ -241,16 +246,16 @@ void SmallShell::changePrevDir(std::string Dir){
  }
 
 JobsList::JobEntry::JobEntry(const JobsList::JobEntry &other){
-  this->job_id(other.getJobId());
-  this->pid(other.getPid());
-  this->is_stooped_by_user(other.isStooped());
-  this->is_timed(other.is_timed());
-  this->insert_time(other.getInsertTime());
-  this->duration(other.getDuration());
-  this->command(other.getCommand());
+  this->job_id(other->getJobId());
+  this->pid(other->getPid());
+  this->is_stooped_by_user(other->isStooped());
+  this->is_timed(other->is_timed());
+  this->insert_time(other->getInsertTime());
+  this->duration(other->getDuration());
+  this->command(other->getCommand());
 }
 
-JobsList::JobEntry::JobEntry& operator=(const JobsList::JobEntry &other) {
+JobsList::JobEntry& JobsList::JobEntry::operator=(const JobsList::JobEntry &other) {
   if(this==&other){
     return *this;
   }
@@ -272,7 +277,7 @@ int JobsList::JobEntry::getJobId(){
 }
 
 pid_t JobsList::JobEntry::getPid(){
-  return this->pid
+  return this->pid;
 }
 
 bool JobsList::JobEntry::isStooped(){
@@ -296,27 +301,27 @@ int JobsList::JobEntry::getDuration(){
 }
 
 bool JobsList::JobEntry::operator>(const JobsList::JobEntry& other){
-    return this->getId() > other.getId();
+    return this->getJobId() > other.getJobId();
 }
 
 bool JobsList::JobEntry::operator<(const JobsList::JobEntry& other){
-    return this->getId() < other.getId();
+    return this->getJobId() < other.getJobId();
 }
 
 bool JobsList::JobEntry::operator==(const JobsList::JobEntry& other){
-    return this->getId() == other.getId();
+    return this->getJobId() == other.getJobId();
 }
 
 bool JobsList::JobEntry::operator!=(const JobsList::JobEntry& other){
-    return this->getId() != other.getId();
+    return this->getJobId() != other.getJobId();
 }
 
 void JobsList::JobEntry::setAsStopped(){
-    this->is_stopped = true;
+    this->isStooped = true;
 }
 
 void JobsList::JobEntry::setAsResumed(){
-    this->is_stopped = false;
+    this->isStooped = false;
 }
 
 JobsList::JobsList() : jobsList() {}
@@ -324,25 +329,25 @@ JobsList::JobsList() : jobsList() {}
 JobsList::~JobsList() {}
 
 
-void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped = false){
+void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
   this->removeFinishedJobs();
-  int newJobId = this->getMaxJobId+1;
+  int newJobId = this->getMaxJobId()+1;
   shared_ptr<JobEntry> new_job(nullptr);
     try{
-        new_job = make_shared<JobEntry>(newJobId,pid,isStooped,cmd.getIsTimed(),cmd.getDuration());
+        new_job = make_shared<JobEntry>(newJobId,pid,isStopped,cmd->getIsTimed(),cmd->getDuration());
     }
     catch(const std::bad_alloc& e){
         cout << e.what() << endl;
     }
-    this->jobs.push_back(new_job);
+    this->jobsList.push_back(new_job);
 }
   
-void JobsList::printJobsList();
+void JobsList::printJobsList() {} ///add here!!!!!!!!!
 
 // chprompt command:
 
 ChPromptCommand::ChPromptCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {
-  std::string cmd = _trim(string(this->command_without_bg));
+  std::string cmd = _trim(string(this.getCommandWOBg()));
   cmd = removeFirstWord(cmd);
   if(cmd.length()>0){
     this->prompt = cmd + "> ";
@@ -352,7 +357,7 @@ ChPromptCommand::ChPromptCommand(const char* cmd_line) : BuiltInCommand(cmd_line
   }
 }
 
-ChPromptCommand::execute() : BuiltInCommand(cmd_line) {
+void ChPromptCommand::execute() : BuiltInCommand(cmd_line) {
     SmallShell& smash = SmallShell::getInstance();
     smash->changePrompt(this->prompt);
 }
@@ -361,7 +366,7 @@ ChPromptCommand::execute() : BuiltInCommand(cmd_line) {
 
 ShowPidCommand::ShowPidCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
-ShowPidCommand::execute() {
+void ShowPidCommand::execute() {
   cout << "smash pid is" << getpid() << endl;
 }
 
@@ -369,7 +374,7 @@ ShowPidCommand::execute() {
 
 GetCurrDirCommand::GetCurrDirCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
-GetCurrDirCommand::execute() {
+void GetCurrDirCommand::execute() {
   char buffer[SMASH_MAX_PATH + 1] = "";
   if (getcwd(buffer, SMASH_MAX_PATH)) {
         cout << buffer << endl;
@@ -393,7 +398,7 @@ ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : Buil
   }
 }
 
-changeDirectory(std::string path) {
+void changeDirectory(std::string path) {
   char buffer[SMASH_MAX_PATH + 1] = "";
     if (!getcwd(buffer, SMASH_MAX_PATH))
     {
@@ -411,7 +416,7 @@ changeDirectory(std::string path) {
         }
 }
 
-ChangeDirCommand::execute() {
+void ChangeDirCommand::execute() {
   if(!this->isValidNumArg){
     cout << "smash error: cd: too many arguments" << endl;
     return;

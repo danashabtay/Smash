@@ -23,6 +23,7 @@ int duration;
   // TODO: Add your extra methods if needed
   bool isBgCommand();
   std::string getFullCommand();
+  std::string getCommandWOBg();
   bool getIsTimed();
   int getDuration();
 };
