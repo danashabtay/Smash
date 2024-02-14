@@ -7,6 +7,7 @@
 #include <iomanip>
 #include "Commands.h"
 
+
 using namespace std;
 
 #if 0
@@ -28,9 +29,9 @@ using namespace std;
 #define SMASH_PRINT_WITH_PERROR(ERR, CMD)                       perror(ERR(CMD));
 #define CHDIR     "chdir"
 #define SMASH_SYSCALL_FAILED_ERROR(CMD)                         "smash error: " CMD " failed"
-#define WHITESPACE  " "
 
 
+const std::string WHITESPACE = " \n\r\t\f\v";
 
 string _ltrim(const std::string& s)
 {
@@ -100,7 +101,7 @@ std::string removeFirstWord(std::string sentence){
     return sentence;
 }
 
-std::string getFirstWord(const char* cmd_line){
+std::string getFirstWord(std::string cmd_line){
   return cmd_line.substr(0, cmd_line.find_first_of(" \n"));
 }
 
@@ -127,13 +128,13 @@ int extractNumber(const std::string& str) {
   Command::Command(const char* cmd_line) : full_command(cmd_line), command_without_bg(cmd_line), is_bg_coomand(false) {
     this->full_command = cmd_line;
     this->duration = extractNumber(cmd_line);
-    this->isTimed = false;
+    this->is_Timed = false;
     if(duration){
-      this->isTimed=true;
+      this->is_Timed=true;
     }
     if(_isBackgroundComamnd(cmd_line)){
       this->is_bg_coomand = true;
-      this->command_without_bg = _removeBackgroundSign(cmd_line;)
+      this->command_without_bg = _removeBackgroundSign(const_cast<char*>(cmd_line));
     }
     else{
         this->is_bg_coomand = false;
@@ -162,7 +163,7 @@ int extractNumber(const std::string& str) {
 
 // SmallShell:
 
-SmallShell::SmallShell() : prevCommand("") currPrompt(""), prevDir(""){
+SmallShell::SmallShell() : prevCommand(""), currPrompt(""), prevDir(""){
 // TODO: add your implementation
 }
 
@@ -190,9 +191,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   else if (firstWord.compare("cd") == 0) {
     return new ChangeDirCommand(cmd_line, nullptr);
   }
- 
-  else if ...
-  .....
+ // add more commands
   else {
     return new ExternalCommand(cmd_line);
   }
@@ -233,7 +232,7 @@ void SmallShell::changePrevDir(std::string Dir){
 //jobList:
  
  JobsList::JobEntry::JobEntry(int job_id, pid_t pid, bool is_stooped_by_user, bool is_timed, int duration, std::string command) 
- : job_id(job_id), pid(pid), is_stooped_by_user(is_stooped_by_user), is_timed(is_timed), duration(duration), command(command); {
+ : job_id(job_id), pid(pid), is_stooped_by_user(is_stooped_by_user), is_timed(is_timed), duration(duration), command(command) {
     time_t time1;
     this->insert_time = time(&time1);
     if(time1 != this->insert_time){

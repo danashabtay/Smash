@@ -2,6 +2,7 @@
 #define SMASH_COMMAND_H_
 
 #include <vector>
+#include <memory>
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
@@ -58,7 +59,8 @@ class RedirectionCommand : public Command {
 };
 
 class ChangeDirCommand : public BuiltInCommand {
-// TODO: Add your data members public:
+// TODO: Add your data members 
+  public:
   bool isValidNumArg;
   std::string dir;
   ChangeDirCommand(const char* cmd_line, char** plastPwd);
@@ -106,8 +108,8 @@ class JobsList {
   std::string command;
   public:
   JobEntry(int job_id, pid_t pid, bool is_stooped_by_user, bool is_timed, int duration, std::string command);
-  JobEntry(JobEntry &other);
-  JobEntry& operator=(JobEntry &other);
+  JobEntry(const JobEntry &other);
+  JobEntry& operator=(const JobEntry &other);
   ~JobEntry();
   int getJobId();
   pid_t getPid();
