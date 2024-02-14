@@ -299,7 +299,7 @@ int JobsList::JobEntry::getDuration(){
   return this->duration;
 }
 
-int JobsList::JobEntry::getMaxJobId() {
+int JobsList::getMaxJobId() {
   int max_id = 0;
     for(const auto& job: this->jobsList){
         max_id = max(max_id, job->getJobId());
@@ -375,8 +375,7 @@ void JobsList::printJobsList() {
     }
 } 
 
-void jobList::removeFinishedJobs() {
-  void JobsList::removeFinishedJobs()
+void jobsList::removeFinishedJobs() {
 {
   for (auto it = jobsList.begin(); it != jobsList.end();)
   {
