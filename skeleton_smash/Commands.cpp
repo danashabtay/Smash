@@ -223,6 +223,9 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
 void SmallShell::executeCommand(const char *cmd_line) {
  
   Command* cmd = CreateCommand(cmd_line);
+  if(cmd==nullptr){
+    return;
+  }
   // if (external || pipe)
   // need to fork
   cmd->execute();
