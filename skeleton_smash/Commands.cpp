@@ -134,7 +134,7 @@ int extractNumber(const std::string& str) {
     }
     if(_isBackgroundComamnd(cmd_line)){
       this->is_bg_coomand = true;
-      char* str = cmd_line;
+      char* str =  const_cast<char*>(cmd_line);
       _removeBackgroundSign(str);
     }
     else{
