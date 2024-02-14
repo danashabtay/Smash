@@ -243,159 +243,156 @@ void SmallShell::changePrevDir(std::string Dir){
 
 //jobList:
  
- JobsList::JobEntry::JobEntry(int job_id, pid_t pid, bool is_stopped_by_user, bool is_timed, int duration, std::string command) 
- : job_id(job_id), pid(pid), is_stopped_by_user(is_stopped_by_user), is_timed(is_timed), duration(duration), command(command) {
-    time_t time1;
-    this->insert_time = time(&time1);
-    if(time1 != this->insert_time){
-        cout <<"time error" << endl;
-    }
- }
+//  JobsList::JobEntry::JobEntry(int job_id, pid_t pid, bool is_stopped_by_user, bool is_timed, int duration, std::string command) 
+//  : job_id(job_id), pid(pid), is_stopped_by_user(is_stopped_by_user), is_timed(is_timed), duration(duration), command(command) {
+//     time_t time1;
+//     this->insert_time = time(&time1);
+//     if(time1 != this->insert_time){
+//         cout <<"time error" << endl;
+//     }
+//  }
 
-// JobsList::JobEntry::JobEntry(const JobsList::JobEntry &other) : job_id(other.getJobId()), pid(other.getPid()), is_stooped_by_user(other.isStooped()), is_timed(other.is_timed()), insert_time(other.getInsertTime()), duration(other.getDuration()), command(other.getCommand()) {
+// JobsList::JobEntry& JobsList::JobEntry::operator=(JobsList::JobEntry &other) {
+//   if(this==&other){
+//     return *this;
+//   }
+//   this->job_id=other.getJobId();
+//   this->pid=other.getPid();
+//   this->is_stopped_by_user=other.isStopped();
+//   this->is_timed=other.isTimed();
+//   this->insert_time=other.getInsertTime();
+//   this->duration=other.getDuration();
+//   this->command=other.getCommand();
+
+//   return *this;
 // }
 
-JobsList::JobEntry& JobsList::JobEntry::operator=(JobsList::JobEntry &other) {
-  if(this==&other){
-    return *this;
-  }
-  this->job_id=other.getJobId();
-  this->pid=other.getPid();
-  this->is_stopped_by_user=other.isStopped();
-  this->is_timed=other.isTimed();
-  this->insert_time=other.getInsertTime();
-  this->duration=other.getDuration();
-  this->command=other.getCommand();
+// JobsList::JobEntry::~JobEntry() {}
 
-  return *this;
-}
+// int JobsList::JobEntry::getJobId(){
+//   return this->job_id;
+// }
 
-JobsList::JobEntry::~JobEntry() {}
+// pid_t JobsList::JobEntry::getPid(){
+//   return this->pid;
+// }
 
-int JobsList::JobEntry::getJobId(){
-  return this->job_id;
-}
+// bool JobsList::JobEntry::isStopped(){
+//   return this->is_stopped_by_user;
+// }
 
-pid_t JobsList::JobEntry::getPid(){
-  return this->pid;
-}
+// bool JobsList::JobEntry::isTimed(){
+//   return this->is_timed;
+// }
 
-bool JobsList::JobEntry::isStopped(){
-  return this->is_stopped_by_user;
-}
+// time_t JobsList::JobEntry::getInsertTime(){
+//   return this->insert_time;
+// }
 
-bool JobsList::JobEntry::isTimed(){
-  return this->is_timed;
-}
+// std::string JobsList::JobEntry::getCommand(){
+//   return this->command;
+// }
 
-time_t JobsList::JobEntry::getInsertTime(){
-  return this->insert_time;
-}
+// int JobsList::JobEntry::getDuration(){
+//   return this->duration;
+// }
 
-std::string JobsList::JobEntry::getCommand(){
-  return this->command;
-}
+// int JobsList::getMaxJobId() {
+//   int max_id = 0;
+//     for(const auto& job: this->jobsList){
+//         max_id = max(max_id, job->getJobId());
+//     }
+//     return max_id;
+// }
 
-int JobsList::JobEntry::getDuration(){
-  return this->duration;
-}
+// bool JobsList::JobEntry::operator>(JobsList::JobEntry& other){
+//     return this->getJobId() > other.getJobId();
+// }
 
-int JobsList::getMaxJobId() {
-  int max_id = 0;
-    for(const auto& job: this->jobsList){
-        max_id = max(max_id, job->getJobId());
-    }
-    return max_id;
-}
+// bool JobsList::JobEntry::operator<( JobsList::JobEntry& other){
+//     return this->getJobId() < other.getJobId();
+// }
 
-bool JobsList::JobEntry::operator>(JobsList::JobEntry& other){
-    return this->getJobId() > other.getJobId();
-}
+// bool JobsList::JobEntry::operator==( JobsList::JobEntry& other){
+//     return this->getJobId() == other.getJobId();
+// }
 
-bool JobsList::JobEntry::operator<( JobsList::JobEntry& other){
-    return this->getJobId() < other.getJobId();
-}
+// bool JobsList::JobEntry::operator!=( JobsList::JobEntry& other){
+//     return this->getJobId() != other.getJobId();
+// }
 
-bool JobsList::JobEntry::operator==( JobsList::JobEntry& other){
-    return this->getJobId() == other.getJobId();
-}
+// void JobsList::JobEntry::setAsStopped(){
+//     this->is_stopped_by_user = true;
+// }
 
-bool JobsList::JobEntry::operator!=( JobsList::JobEntry& other){
-    return this->getJobId() != other.getJobId();
-}
+// void JobsList::JobEntry::setAsResumed(){
+//     this->is_stopped_by_user = false;
+// }
 
-void JobsList::JobEntry::setAsStopped(){
-    this->is_stopped_by_user = true;
-}
+// JobsList::JobsList() : jobsList() {}
 
-void JobsList::JobEntry::setAsResumed(){
-    this->is_stopped_by_user = false;
-}
-
-JobsList::JobsList() : jobsList() {}
-
-JobsList::~JobsList() {}
+// JobsList::~JobsList() {}
 
 
-void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
-  this->removeFinishedJobs();
-  int newJobId = this->getMaxJobId()+1;
-  shared_ptr<JobEntry> new_job(nullptr);
-    try{
-        new_job = make_shared<JobEntry>(newJobId,pid,isStopped,cmd->getIsTimed(),cmd->getDuration(),cmd->getFullCommand());
-    }
-    catch(const std::bad_alloc& e){
-        cout << e.what() << endl;
-    }
-    this->jobsList.push_back(new_job);
-}
+// void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
+//   this->removeFinishedJobs();
+//   int newJobId = this->getMaxJobId()+1;
+//   shared_ptr<JobEntry> new_job(nullptr);
+//     try{
+//         new_job = make_shared<JobEntry>(newJobId,pid,isStopped,cmd->getIsTimed(),cmd->getDuration(),cmd->getFullCommand());
+//     }
+//     catch(const std::bad_alloc& e){
+//         cout << e.what() << endl;
+//     }
+//     this->jobsList.push_back(new_job);
+// }
   
-  bool JobsList::JobEntry::jobWasStopped()
-{
-    return this->isStopped();
-}
+//   bool JobsList::JobEntry::jobWasStopped()
+// {
+//     return this->isStopped();
+// }
 
-void JobsList::printJobsList() {
-  std::sort(jobsList.begin(), jobsList.end(), JobsList::JobIsBigger());
-    for(const auto& job: this->jobsList){
-        string jobToPrint = job->getCommand();
-        time_t current_time;
-        time(&current_time);
-        time_t elapsed_time = difftime(current_time, job->getInsertTime());
+// void JobsList::printJobsList() {
+//   std::sort(jobsList.begin(), jobsList.end(), JobsList::JobIsBigger());
+//     for(const auto& job: this->jobsList){
+//         string jobToPrint = job->getCommand();
+//         time_t current_time;
+//         time(&current_time);
+//         time_t elapsed_time = difftime(current_time, job->getInsertTime());
 
-        if (job->isTimed())
-        {
-            jobToPrint = "timeout " + std::to_string(job->getDuration()) + " " + job->getCommand();
-        }
+//         if (job->isTimed())
+//         {
+//             jobToPrint = "timeout " + std::to_string(job->getDuration()) + " " + job->getCommand();
+//         }
 
-        cout << "[" <<  job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
-        if(job->jobWasStopped()){
-            cout << " (stopped)";
-        }
-        cout << endl;
-    }
-} 
+//         cout << "[" <<  job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
+//         if(job->jobWasStopped()){
+//             cout << " (stopped)";
+//         }
+//         cout << endl;
+//     }
+// } 
 
-void JobsList::removeFinishedJobs() {
-{
-  for (auto it = jobsList.begin(); it != jobsList.end();)
-  {
-    int status = 0;
-    pid_t child_pid = waitpid((*it)->getPid(), &status, WNOHANG);
-    if (child_pid > 0) {
-      it = jobsList.erase(it);
-    }
-    else
-    {
-      if (child_pid == -1)
-      {
-        SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, "waitpid");
-      }
-      ++it;
-    }
-  }
-}
-}
+// void JobsList::removeFinishedJobs() {
+// {
+//   for (auto it = jobsList.begin(); it != jobsList.end();)
+//   {
+//     int status = 0;
+//     pid_t child_pid = waitpid((*it)->getPid(), &status, WNOHANG);
+//     if (child_pid > 0) {
+//       it = jobsList.erase(it);
+//     }
+//     else
+//     {
+//       if (child_pid == -1)
+//       {
+//         SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, "waitpid");
+//       }
+//       ++it;
+//     }
+//   }
+// }
+// }
 
 
 // chprompt command:
@@ -418,85 +415,85 @@ void ChPromptCommand::execute() {
 
 // ShowPidCommand :
 
-ShowPidCommand::ShowPidCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
+// ShowPidCommand::ShowPidCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
-void ShowPidCommand::execute() {
-  cout << "smash pid is" << getpid() << endl;
-}
+// void ShowPidCommand::execute() {
+//   cout << "smash pid is" << getpid() << endl;
+// }
 
 // pwd:
 
-GetCurrDirCommand::GetCurrDirCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
+// GetCurrDirCommand::GetCurrDirCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
-void GetCurrDirCommand::execute() {
-  char buffer[SMASH_MAX_PATH + 1] = "";
-  if (getcwd(buffer, SMASH_MAX_PATH)) {
-        cout << buffer << endl;
-  } else {
-        cout << "pwd error" << endl;
-  }
-}
+// void GetCurrDirCommand::execute() {
+//   char buffer[SMASH_MAX_PATH + 1] = "";
+//   if (getcwd(buffer, SMASH_MAX_PATH)) {
+//         cout << buffer << endl;
+//   } else {
+//         cout << "pwd error" << endl;
+//   }
+// }
 
 // cd:
 
-ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line), isValidNumArg(false), dir("") {
-  std::string cmd = _trim(string(this->getCommandWOBg()));
-  cmd = removeFirstWord(cmd);
-  if(removeFirstWord(cmd).length() > 0 ) { // too many arguments
-    return;
-  }
-  else {
-    this->isValidNumArg = true;
-    this->dir = cmd;
-    return;
-  }
-}
+// ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line), isValidNumArg(false), dir("") {
+//   std::string cmd = _trim(string(this->getCommandWOBg()));
+//   cmd = removeFirstWord(cmd);
+//   if(removeFirstWord(cmd).length() > 0 ) { // too many arguments
+//     return;
+//   }
+//   else {
+//     this->isValidNumArg = true;
+//     this->dir = cmd;
+//     return;
+//   }
+// }
 
-void changeDirectory(std::string path) {
-  char buffer[SMASH_MAX_PATH + 1] = "";
-    if (!getcwd(buffer, SMASH_MAX_PATH))
-    {
-        cerr << "pwd error" << endl;
-    }
-        // call the syscall. if succeded, save the old directory:
-        if (chdir(path.c_str()) != -1)
-        {
-            SmallShell &smash = SmallShell::getInstance();
-            smash.changePrevDir(string(buffer));
-        }
-        else{
-            SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CHDIR);
-            return;
-        }
-}
+// void changeDirectory(std::string path) {
+//   char buffer[SMASH_MAX_PATH + 1] = "";
+//     if (!getcwd(buffer, SMASH_MAX_PATH))
+//     {
+//         cerr << "pwd error" << endl;
+//     }
+//         // call the syscall. if succeded, save the old directory:
+//         if (chdir(path.c_str()) != -1)
+//         {
+//             SmallShell &smash = SmallShell::getInstance();
+//             smash.changePrevDir(string(buffer));
+//         }
+//         else{
+//             SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CHDIR);
+//             return;
+//         }
+// }
 
-void ChangeDirCommand::execute() {
-  SmallShell &smash = SmallShell::getInstance();
-  std::string prevDir = smash.getPrevDir();
+// void ChangeDirCommand::execute() {
+//   SmallShell &smash = SmallShell::getInstance();
+//   std::string prevDir = smash.getPrevDir();
   
-  if(!this->isValidNumArg){
-    cout << "smash error: cd: too many arguments" << endl;
-    return;
-  }
-  else if (this->dir.compare("-") == 0) {
-    // in case that cd command has not yet been called:
-    if(prevDir.length() == 0) {
-        cout << "smash error: cd: OLDPWD not set" << endl;
-        return;
-    }
-    // there is a prev dir:
-    else{
-      changeDirectory(prevDir); 
-    }
-  }
-  // got a dir to chage to:
-  else {
-    changeDirectory(this->dir);
-  }
-}
+//   if(!this->isValidNumArg){
+//     cout << "smash error: cd: too many arguments" << endl;
+//     return;
+//   }
+//   else if (this->dir.compare("-") == 0) {
+//     // in case that cd command has not yet been called:
+//     if(prevDir.length() == 0) {
+//         cout << "smash error: cd: OLDPWD not set" << endl;
+//         return;
+//     }
+//     // there is a prev dir:
+//     else{
+//       changeDirectory(prevDir); 
+//     }
+//   }
+//   // got a dir to chage to:
+//   else {
+//     changeDirectory(this->dir);
+//   }
+// }
 
 //-------- BuiltInCommand Class:
 
-BuiltInCommand::BuiltInCommand(const char *cmd_line) : Command(cmd_line) {
-  this->is_bg_coomand=false;
-}
+// BuiltInCommand::BuiltInCommand(const char *cmd_line) : Command(cmd_line) {
+//   this->is_bg_coomand=false;
+// }
