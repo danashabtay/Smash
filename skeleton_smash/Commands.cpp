@@ -22,12 +22,56 @@ using namespace std;
 
 // Constants:
 
+// Constants:
+
 #define SMASH_DEFAULT_PROMPT   "smash> "
-#define SMASH_BASH_PATH        "/bin/bash"
 #define SMASH_MAX_PATH         2048
-#define SMASH_PRINT_WITH_PERROR(ERR, CMD)                       perror(ERR(CMD));
+#define SMASH_BIG_PATH         128
+#define SMASH_MAX_ARGS         21
+#define DEFAULT_LINES_FOR_TAIL 10
+#define SMASH_BASH_PATH        "/bin/bash"
+#define SMASH_C_ARG            "-c"
+#define TIME_SEPERATOR         ":"
+#define YEARS_TO_SUBSTRACT     1900
+#define MONTHS_TO_SUBSTRACT    1
+#define DASH                   "-"
+#define REDIRECTION_CHAR       ">"
+#define PIPE_CHAR              "|"
+#define STDERR_PIPE_PREFIX     "&"
+
+#define CD        "cd"
+#define OPEN      "open"
+#define FG        "fg"
+#define BG        "bg"
+#define FORK      "fork"
+#define KILL      "kill"
 #define CHDIR     "chdir"
+#define KILL      "kill"
+#define FORK      "fork"
+#define EXECV     "execv"
+#define DUP       "dup"
+#define CLOSE     "close"
+#define READ      "read"
+#define WRITE     "write"
+#define PIPE      "pipe"
+#define TAIL      "tail"
+#define TOUCH     "touch"
+#define UTIME     "utime"
+#define MKTIME    "mktime"
+
+
+#define SMASH_PRINT_WITH_PERROR(ERR, CMD)                       perror(ERR(CMD));
+#define SMASH_PRINT_ERROR(ERR, CMD)                             cerr << ERR(CMD) << endl;
+#define SMASH_PRINT_ERROR_JOB_ID(ERR_START, ERR_END, CMD, ID)   cerr <<  ERR_START(CMD) << ID << ERR_END << endl;
+#define SMASH_PRINT_COMMAND_WITH_PID(CMD, PID)                  cout << CMD << " : " << PID << endl;
 #define SMASH_SYSCALL_FAILED_ERROR(CMD)                         "smash error: " CMD " failed"
+#define SMASH_INVALID_ARGS_ERROR(CMD)                           "smash error: " CMD ": invalid arguments"
+#define SMASH_JOBS_LIST_EMPTY_ERROR(CMD)                        "smash error: " CMD ": jobs list is empty"
+#define SMASH_NO_STOPPED_JOBS_IN_LIST(CMD)                      "smash error: " CMD ": there is no stopped jobs to resume"
+#define SMASH_JOB_ID_DOES_NOT_EXISTS_ERROR_START(CMD)           "smash error: " CMD ": job-id "
+#define SMASH_JOB_ID_DOES_NOT_EXISTS_ERROR_END                  " does not exist"
+#define SMASH_JOB_JOB_ALREADY_IN_BG_ERROR_START(CMD)            "smash error: " CMD ": job-id "
+#define SMASH_JOB_JOB_ALREADY_IN_BG_ERROR__END                  " is already running in the background"
 
 
 const std::string WHITESPACE = " \n\r\t\f\v";
@@ -180,7 +224,7 @@ int extractNumber(const std::string& str) {
 
 // SmallShell:
 
-SmallShell::SmallShell() : prevCommand(""), currPrompt(SMASH_DEFAULT_PROMPT), prevDir(""), jobs(){
+SmallShell::SmallShell() : prevCommand(""), currPrompt(SMASH_DEFAULT_PROMPT), prevDir(""), jobs(), current_job(nullptr){
 // TODO: add your implementation
 }
 
@@ -202,15 +246,24 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   if (firstWord.compare("chprompt") == 0) {
     return new ChPromptCommand(cmd_line);
   }
-  // else if (firstWord.compare("pwd") == 0) {
-  //   return new GetCurrDirCommand(cmd_line);
-  // }
+  else if (firstWord.compare("pwd") == 0) {
+    return new GetCurrDirCommand(cmd_line);
+  }
   else if (firstWord.compare("showpid") == 0) {
     return new ShowPidCommand(cmd_line);
   }
-  // else if (firstWord.compare("cd") == 0) {
-  //   return new ChangeDirCommand(cmd_line, nullptr);
-  // }
+  else if (firstWord.compare("cd") == 0) {
+    return new ChangeDirCommand(cmd_line, nullptr);
+  }
+  else if (firstWord.compare("jobs") == 0) {
+    return new JobsCommand(cmd_line, nullptr);
+  }
+  else if (firstWord.compare("fg") == 0) {
+    return new ForegroundCommand(cmd_line, nullptr);
+  }
+  else if (firstWord.compare("quit") == 0) {
+    return new QuitCommand(cmd_line, nullptr);
+  }
  // add more commands
   // else {
   //   return new ExternalCommand(cmd_line);
@@ -254,7 +307,9 @@ void SmallShell::changePrevDir(std::string Dir){
   this->prevDir = Dir;
 }
 
-
+std::vector<std::shared_ptr<JobEntry>> SmallShell::getJobs(){
+  return this->jobs;
+}
 
 
 //jobList:
@@ -319,6 +374,57 @@ int JobsList::getMaxJobId() {
         max_id = max(max_id, job->getJobId());
     }
     return max_id;
+}
+
+shared_ptr<JobsList::JobEntry> JobsList::getJobByPid(const int& jobPid) const
+{
+    if(jobPid <= 0){
+        return std::shared_ptr<JobsList::JobEntry>(nullptr);
+    }
+    for(const auto& job: this->jobsList){
+        if(job->getPid() == jobPid){
+            return job;
+        }
+    }
+    return std::shared_ptr<JobsList::JobEntry>(nullptr);
+}
+
+std::vector<std::shared_ptr<JobsList::JobEntry>> JobsList::getAllJobs() const
+{
+    return jobsList;
+}
+
+int JobsList::getJobsNum() const
+{
+    return this->jobsList.size();
+}
+
+void JobsList::removeJobById(const int& jobId)
+{
+    if(jobId <= 0){
+        return;
+    }
+    for (auto iter = jobsList.begin(); iter != jobsList.end();) {
+        if ((*iter)->getJobId() == jobId){
+            iter = jobsList.erase(iter);
+        }
+        else{
+            iter++;
+        }
+    }
+}
+
+shared_ptr<JobsList::JobEntry> JobsList::getJobById(const int& jobId) const
+{
+    if(jobId <= 0){
+        return std::shared_ptr<JobsList::JobEntry>(nullptr);
+    }
+    for(const auto& job: this->jobsList){
+        if(job->getJobId() == jobId){
+            return job;
+        }
+    }
+    return std::shared_ptr<JobsList::JobEntry>(nullptr);
 }
 
 bool JobsList::JobEntry::operator>(JobsList::JobEntry& other){
@@ -410,6 +516,19 @@ void JobsList::removeFinishedJobs() {
 }
 }
 
+void JobsList::killAllJobs(const bool& kill_jobs)
+{
+    if (kill_jobs){
+        for(auto& job: this->jobs){
+            cout << job->getPid() << ": " << job->getCommand() << endl;
+            if (kill(job->getPid(), SIGKILL) == -1){
+                SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
+                return;
+            }
+        }
+    }
+    this->jobsList.clear();
+}
 
 // chprompt command:
 
@@ -516,6 +635,141 @@ void JobsCommand::execute()
 {
     SmallShell &smash = SmallShell::getInstance();
     smash.jobs.printJobsList();
+}
+
+// fg:
+
+ForegroundCommand::ForegroundCommand(const char *cmd_line, JobsList *jobs) : BuiltInCommand(cmd_line), jobs_list(jobs){}
+
+void ForegroundCommand::execute()
+{
+    string args = removeFirstWord(this->full_command);
+    string job_id_s = getFirstWord(args); // if empty, try getting the max job-id.
+    string remainnig = removeFirstWord(args); // supposed to be empty.
+    int job_id = 0;
+    //In case of no arguments:
+    if (job_id_s.length() == 0){
+        job_id = this->jobs_list->getMaxJobId();
+        if (job_id == 0){
+            SMASH_PRINT_ERROR(SMASH_JOBS_LIST_EMPTY_ERROR, FG);
+            return;
+        }
+    }
+        //In case of two or more arguments:
+    else if (remainnig.length() > 0){
+        SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, FG);
+        return;
+    }
+        //In case of one arguments:
+    else{
+        try{
+            job_id = stoi(job_id_s); //check if works
+        }
+        catch (std::invalid_argument&){
+            SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, FG);
+            return;
+        }
+    }
+    //check if a job with this id exists:
+    shared_ptr<JobsList::JobEntry> job = this->jobs_list->getJobById(job_id); // need to add jobbyid & MACROS
+    if (job == nullptr){
+        SMASH_PRINT_ERROR_JOB_ID(SMASH_JOB_ID_DOES_NOT_EXISTS_ERROR_START, SMASH_JOB_ID_DOES_NOT_EXISTS_ERROR_END, FG, job_id);
+        return;
+    }
+    // execute:
+    SMASH_PRINT_COMMAND_WITH_PID(job->getCommand(),job->getPid());
+    SmallShell& smash = SmallShell::getInstance();
+    smash.current_job = job;
+    if (kill(job->getPid(), SIGCONT) == -1){
+        SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, KILL);
+    }
+    int status;
+
+    // smash.current_job = job;
+    waitpid(job->getPid(), &status, WUNTRACED);
+
+    if (!WIFSTOPPED(status)) {
+        jobs_list->removeJobById(job->getPid()); //removenyid
+        smash.current_job = nullptr;
+        return;
+    }
+    job->setJobAsStopped();
+}
+
+// quit / quitkill:
+
+QuitCommand::QuitCommand(const char *cmd_line, JobsList *jobs) : BuiltInCommand(cmd_line), jobs_list(jobs){}
+
+void QuitCommand::execute()
+{
+    string argument = getFirstWord(removeFirstWord(this->full_command));
+    if(argument.compare("kill") != 0){
+        exit(0);
+    }
+    cout << "smash: sending SIGKILL signal to " << this->jobs_list->getJobsNum() << " jobs:" << endl;
+    this->jobs_list->killAllJobs(true);
+    exit(0);
+}
+
+
+
+// kill:
+
+KillCommand::KillCommand(const char *cmd_line, JobsList *jobs) : BuiltInCommand(cmd_line), jobs_list(jobs){}
+
+void KillCommand::execute() {
+  string numSig_s = getFirstWord(removeFirstWord(this->full_command));
+  string job_id_s = getFirstWord(removeFirstWord(numSig_s));
+  string remaining = removeFirstWord(job_id_s); // supposed to be empty.
+  int job_id=0;
+  int num_sig=0;
+  
+  try{
+    job_id = stoi(job_id_s); //check if works
+  }
+  catch (std::invalid_argument&){
+    SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
+    return;
+  }
+
+  try{
+    num_sig = stoi(numSig_s); //check if works
+  }
+  catch (std::invalid_argument&){
+    SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
+    return;
+  }
+
+  if (remainnig.length() > 0){
+        SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
+        return;
+    }
+  //check if a job with this id exists:
+    shared_ptr<JobsList::JobEntry> job = this->jobs_list->getJobById(job_id); // need to add jobbyid & MACROS
+    if (job == nullptr){
+        SMASH_PRINT_ERROR_JOB_ID(SMASH_JOB_ID_DOES_NOT_EXISTS_ERROR_START, SMASH_JOB_ID_DOES_NOT_EXISTS_ERROR_END, FG, job_id);
+        return;
+    }
+
+
+
+  if(kill(job->getPid(),num_sig) == -1){
+    SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, KILL);
+  }
+  else {
+    if(num_sig == SIGSTOP || num_sig == SIGSTP){
+      job.setAsStopped();
+    }
+    else if (num_sig == SIGKILL) {
+      SmallShell& smash = SmallShell::getInstance();
+      smash.getJobs->removeJobById(job_id);
+    }
+    else if(num_sig == SIGCONT) {
+      job.setAsResumed();
+    }
+  }
+  cout << "signal number " << num_sig << " was sent to pid " << job->getPid() << endl;
+
 }
 
 //-------- BuiltInCommand Class:

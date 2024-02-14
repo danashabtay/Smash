@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 #include <string.h>
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
@@ -141,11 +142,14 @@ class JobsList {
   void printJobsList();
   void killAllJobs();
   void removeFinishedJobs();
-  JobEntry * getJobById(int jobId);
-  void removeJobById(int jobId);
+  std::vector<std::shared_ptr<JobEntry>> getAllJobs() const;
+  std::shared_ptr<JobEntry> getJobById(const int& jobId) const;
+  std::shared_ptr<JobEntry> getJobByPid(const int& jobPid) const;
+  void removeJobById(const int& jobId);
   JobEntry * getLastJob(int* lastJobId);
   JobEntry *getLastStoppedJob(int *jobId);
   int getMaxJobId();
+  int getJobsNum() const;
   class JobIsBigger
     {
     public:
@@ -166,7 +170,7 @@ class JobsCommand : public BuiltInCommand {
 };
 
 class KillCommand : public BuiltInCommand {
- // TODO: Add your data members
+    JobsList* jobs_list;
  public:
   KillCommand(const char* cmd_line, JobsList* jobs);
   virtual ~KillCommand() {}
@@ -174,11 +178,12 @@ class KillCommand : public BuiltInCommand {
 };
 
 class ForegroundCommand : public BuiltInCommand {
- // TODO: Add your data members
- public:
-  ForegroundCommand(const char* cmd_line, JobsList* jobs);
-  virtual ~ForegroundCommand() {}
-  void execute() override;
+  private:
+    JobsList* jobs_list;
+  public:
+    ForegroundCommand(const char* cmd_line, JobsList* jobs);
+    virtual ~ForegroundCommand() {}
+    void execute() override;
 };
 
 class ChmodCommand : public BuiltInCommand {
@@ -197,6 +202,7 @@ class SmallShell {
   SmallShell();
  public:
   JobsList jobs;
+  std::shared_ptr<JobsList::JobEntry> current_job;
   Command *CreateCommand(const char* cmd_line);
   SmallShell(SmallShell const&)      = delete; // disable copy ctor
   void operator=(SmallShell const&)  = delete; // disable = operator
@@ -214,6 +220,7 @@ class SmallShell {
   void changePrompt(std::string prompt);
   std::string getPrevDir();
   void changePrevDir(std::string Dir);
+  std::vector<std::shared_ptr<JobEntry>> getJobs();
   // TODO: add extra methods as needed
 };
 
