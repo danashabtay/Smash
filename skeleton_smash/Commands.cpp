@@ -245,7 +245,7 @@ void SmallShell::changePrevDir(std::string Dir){
     }
  }
 
-JobsList::JobEntry::JobEntry(const JobsList::JobEntry &other) : this->job_id(other.getJobId()), this->pid(other.getPid()), this->is_stooped_by_user(other.isStooped()), this->is_timed(other.is_timed()), this->insert_time(other.getInsertTime()), this->duration(other.getDuration()), this->command(other.getCommand());{
+JobsList::JobEntry::JobEntry(const JobsList::JobEntry &other) : job_id(other.getJobId()), pid(other.getPid()), is_stooped_by_user(other.isStooped()), is_timed(other.is_timed()), insert_time(other.getInsertTime()), duration(other.getDuration()), command(other.getCommand()) {
 }
 
 JobsList::JobEntry& JobsList::JobEntry::operator=(JobsList::JobEntry &other) {
@@ -255,7 +255,7 @@ JobsList::JobEntry& JobsList::JobEntry::operator=(JobsList::JobEntry &other) {
   this->job_id=other.getJobId();
   this->pid=other.getPid();
   this->is_stooped_by_user=other.isStooped();
-  this->is_timed=other.is_timed();
+  this->is_timed=other.isTimed();
   this->insert_time=other.getInsertTime();
   this->duration=other.getDuration();
   this->command=other.getCommand();
@@ -352,7 +352,7 @@ ChPromptCommand::ChPromptCommand(const char* cmd_line) : BuiltInCommand(cmd_line
 
 void ChPromptCommand::execute() : BuiltInCommand(cmd_line) {
     SmallShell& smash = SmallShell::getInstance();
-    smash->changePrompt(this->prompt);
+    smash.changePrompt(this->prompt);
 }
 
 // ShowPidCommand :
@@ -411,7 +411,7 @@ void changeDirectory(std::string path) {
 
 void ChangeDirCommand::execute() {
   SmallShell &smash = SmallShell::getInstance();
-  prevDir = smash.getPrevDir();
+  std::string prevDir = smash.getPrevDir();
   
   if(!this->isValidNumArg){
     cout << "smash error: cd: too many arguments" << endl;
