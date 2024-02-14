@@ -375,7 +375,7 @@ void JobsList::printJobsList() {
     }
 } 
 
-void jobsList::removeFinishedJobs() {
+void JobsList::removeFinishedJobs() {
 {
   for (auto it = jobsList.begin(); it != jobsList.end();)
   {
@@ -388,7 +388,7 @@ void jobsList::removeFinishedJobs() {
     {
       if (child_pid == -1)
       {
-        SMASH_SYSCALL_FAILED_ERROR("waitpid");
+        SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, "waitpid");
       }
       ++it;
     }
