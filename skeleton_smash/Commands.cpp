@@ -797,7 +797,7 @@ void ExternalCommand::execute() {
   }
   else if (new_pid > 0){ //father:
     // if bg command add to jobs list:
-    if(this->getCommand().compare("") != 0) {
+    if(this->getFullCommand().compare("") != 0) {
     smash.jobs.addJob(this,new_pid,false);
     }
     // if not bg then set as current command and remove from jobs list:
@@ -812,17 +812,17 @@ void ExternalCommand::execute() {
   else { //son:
     if(this->getCommand().compare("") != 0) {
     {
-    if(isComplexCommand(this->getCommand())) {
+    if(isComplexCommand(this->getFullCommand())) {
       //simple command:
       char* args[SMASH_MAX_PATH+1];
       int arg_count = 0;
       char *token = strtok(cmd_line, WHITESPACE); 
-      while (token != NULL && arg_count < SMASH_MAX_ARGS) {
+      while (token != NULL && arg_count < SMASH_MAX_ARGS) { //each element in args is a "word" in the command
           args[arg_count++] = token;
           token = strtok(NULL, WHITESPACE);
       }
       args[arg_count] = NULL; // Null-terminate the array of arguments
-      execv(args[0], args+1);
+      execvp(args[0], args+1);
       SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, EXECV);
       
     }
@@ -830,7 +830,7 @@ void ExternalCommand::execute() {
       //complex command:
       setpgrp();
       char cmd_args[SMASH_MAX_PATH+1];
-      strcpy(cmd_args, this->getCommand().c_str());
+      strcpy(cmd_args, this->getFullCommand().c_str());
       char bash_path[SMASH_BIG_PATH+1];
       strcpy(bash_path, SMASH_BASH_PATH);
       char c_arg[SMASH_BIG_PATH+1];
