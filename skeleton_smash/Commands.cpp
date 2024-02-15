@@ -307,7 +307,7 @@ void SmallShell::changePrevDir(std::string Dir){
   this->prevDir = Dir;
 }
 
-std::vector<std::shared_ptr<JobEntry>> SmallShell::getJobs(){
+std::vector<std::shared_ptr<JobsList::JobEntry>> SmallShell::getJobs(){
   return this->jobs;
 }
 
@@ -516,9 +516,9 @@ void JobsList::removeFinishedJobs() {
 }
 }
 
-void JobsList::killAllJobs(const bool& kill_jobs)
+void JobsList::killAllJobs()
 {
-    if (kill_jobs){
+    
         for(auto& job: this->jobs){
             cout << job->getPid() << ": " << job->getCommand() << endl;
             if (kill(job->getPid(), SIGKILL) == -1){
@@ -526,7 +526,7 @@ void JobsList::killAllJobs(const bool& kill_jobs)
                 return;
             }
         }
-    }
+    
     this->jobsList.clear();
 }
 
@@ -643,7 +643,7 @@ ForegroundCommand::ForegroundCommand(const char *cmd_line, JobsList *jobs) : Bui
 
 void ForegroundCommand::execute()
 {
-    string args = removeFirstWord(this->full_command);
+    string args = removeFirstWord(this->getFullCommand());
     string job_id_s = getFirstWord(args); // if empty, try getting the max job-id.
     string remainnig = removeFirstWord(args); // supposed to be empty.
     int job_id = 0;
@@ -693,7 +693,7 @@ void ForegroundCommand::execute()
         smash.current_job = nullptr;
         return;
     }
-    job->setJobAsStopped();
+    job->setAsStopped();
 }
 
 // quit / quitkill:
@@ -702,12 +702,12 @@ QuitCommand::QuitCommand(const char *cmd_line, JobsList *jobs) : BuiltInCommand(
 
 void QuitCommand::execute()
 {
-    string argument = getFirstWord(removeFirstWord(this->full_command));
+    string argument = getFirstWord(removeFirstWord(this->getFullCommand()));
     if(argument.compare("kill") != 0){
         exit(0);
     }
     cout << "smash: sending SIGKILL signal to " << this->jobs_list->getJobsNum() << " jobs:" << endl;
-    this->jobs_list->killAllJobs(true);
+    this->jobs_list->killAllJobs();
     exit(0);
 }
 
@@ -718,7 +718,7 @@ void QuitCommand::execute()
 KillCommand::KillCommand(const char *cmd_line, JobsList *jobs) : BuiltInCommand(cmd_line), jobs_list(jobs){}
 
 void KillCommand::execute() {
-  string numSig_s = getFirstWord(removeFirstWord(this->full_command));
+  string numSig_s = getFirstWord(removeFirstWord(this->getFullCommand()));
   string job_id_s = getFirstWord(removeFirstWord(numSig_s));
   string remaining = removeFirstWord(job_id_s); // supposed to be empty.
   int job_id=0;
@@ -740,7 +740,7 @@ void KillCommand::execute() {
     return;
   }
 
-  if (remainnig.length() > 0){
+  if (remaining.length() > 0){
         SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
         return;
     }
@@ -757,15 +757,15 @@ void KillCommand::execute() {
     SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, KILL);
   }
   else {
-    if(num_sig == SIGSTOP || num_sig == SIGSTP){
-      job.setAsStopped();
+    if(num_sig == SIGSTOP || num_sig == SIGTSTP){
+      job->setAsStopped();
     }
     else if (num_sig == SIGKILL) {
       SmallShell& smash = SmallShell::getInstance();
-      smash.getJobs->removeJobById(job_id);
+      smash.getJobs().removeJobById(job_id);
     }
     else if(num_sig == SIGCONT) {
-      job.setAsResumed();
+      job->setAsResumed();
     }
   }
   cout << "signal number " << num_sig << " was sent to pid " << job->getPid() << endl;
