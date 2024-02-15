@@ -804,23 +804,26 @@ void ExternalCommand::execute() {
     if(!this->isBgCommand()){
     smash.current_job = smash.jobs.getJobByPid(new_pid);
     int id = smash.current_job->getJobId();
-    smash.joubs.removeJobById(id);
+    smash.jobs.removeJobById(id);
     waitpid(new_pid, NULL, WUNTRACED);
     smash.current_job = nullptr;
     }
   }
   else { //son:
-    if(this->getCommand().compare("") != 0) {
+    if(this->getFullCommand().compare("") != 0) {
     {
-    if(isComplexCommand(this->getFullCommand())) {
+    if(isComplexCommand(this->getFullCommand().c_str())) {
       //simple command:
       char* args[SMASH_MAX_PATH+1];
       int arg_count = 0;
-      char *token = strtok(cmd_line, WHITESPACE); 
+      char* stringToTokenize = new char[SMASH_MAX_PATH+1]; //for converting from string to char*. size as path size
+      strcpy(stringToTokenize,this->getFullCommand().c_str());
+      char *token = strtok(stringToTokenize, WHITESPACE.c_str()); 
       while (token != NULL && arg_count < SMASH_MAX_ARGS) { //each element in args is a "word" in the command
           args[arg_count++] = token;
-          token = strtok(NULL, WHITESPACE);
+          token = strtok(NULL, WHITESPACE.c_str());
       }
+      delete[] stringToTokenize;
       args[arg_count] = NULL; // Null-terminate the array of arguments
       execvp(args[0], args+1);
       SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, EXECV);
@@ -842,4 +845,5 @@ void ExternalCommand::execute() {
     }
     exit(0); 
   }
+}
 }
