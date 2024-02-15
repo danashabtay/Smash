@@ -307,7 +307,7 @@ void SmallShell::changePrevDir(std::string Dir){
   this->prevDir = Dir;
 }
 
-std::vector<std::shared_ptr<JobsList::JobEntry>> SmallShell::getJobs(){
+JobsList SmallShell::getJobs(){
   return this->jobs;
 }
 
@@ -519,7 +519,7 @@ void JobsList::removeFinishedJobs() {
 void JobsList::killAllJobs()
 {
     
-        for(auto& job: this->jobs){
+        for(auto& job: this->jobsList){
             cout << job->getPid() << ": " << job->getCommand() << endl;
             if (kill(job->getPid(), SIGKILL) == -1){
                 SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
