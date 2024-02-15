@@ -256,13 +256,13 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     return new ChangeDirCommand(cmd_line, nullptr);
   }
   else if (firstWord.compare("jobs") == 0) {
-    return new JobsCommand(cmd_line, nullptr);
+    return new JobsCommand(cmd_line, &(this->jobs));
   }
   else if (firstWord.compare("fg") == 0) {
-    return new ForegroundCommand(cmd_line, nullptr);
+    return new ForegroundCommand(cmd_line, &(this->jobs));
   }
   else if (firstWord.compare("quit") == 0) {
-    return new QuitCommand(cmd_line, nullptr);
+    return new QuitCommand(cmd_line, &(this->jobs));
   }
  // add more commands
   // else {
@@ -701,6 +701,10 @@ void QuitCommand::execute()
     string argument = getFirstWord(removeFirstWord(this->getFullCommand()));
     if(argument.compare("kill") != 0){
         exit(0);
+    }
+    if(jobs_list->getJobsNum()==0){
+          cout << "smash: sending SIGKILL signal to 0 jobs:" << endl;
+          exit(0);
     }
     cout << "smash: sending SIGKILL signal to " << this->jobs_list->getJobsNum() << " jobs:" << endl;
     this->jobs_list->killAllJobs();
