@@ -757,8 +757,7 @@ void KillCommand::execute() {
       job->setAsStopped();
     }
     else if (num_sig == SIGKILL) {
-      SmallShell& smash = SmallShell::getInstance();
-      jobs_list.removeJobById(job_id);
+      jobs_list->removeJobById(job_id);
     }
     else if(num_sig == SIGCONT) {
       job->setAsResumed();
