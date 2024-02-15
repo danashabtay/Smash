@@ -131,7 +131,7 @@ void _removeBackgroundSign(char* cmd_line) {
   cmd_line[str.find_last_not_of(WHITESPACE, idx) + 1] = 0;
 }
 
-// TODO: Add your implementation for classes in Commands.h 
+
 
 
 // Utilities:
@@ -241,8 +241,14 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   if (cmd_s[cmd_s.length() - 1] == '&'){
         cmd_s = _trim(cmd_s.substr(0, cmd_s.length() - 1));
     }
+    //checking if there is a redirection request
+       if (cmd_s.find(REDIRECTION_CHAR) != string::npos)
+    {
+        return new RedirectionCommand(cmd_line);
+    }
   string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
   
+  //built-in commnads:
   if (firstWord.compare("chprompt") == 0) {
     return new ChPromptCommand(cmd_line);
   }
@@ -267,7 +273,8 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   else if (firstWord.compare("kill") == 0) {
     return new KillCommand(cmd_line, &(this->jobs));
   }
- // add more commands
+  
+ // External commands:
   else {
     return new ExternalCommand(cmd_line);
   }
@@ -846,4 +853,23 @@ void ExternalCommand::execute() {
     exit(0); 
   }
 }
+}
+
+RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line), append_mode(false){
+    char* cmdl=const_cast<char*>(cmd_line);
+  _removeBackgroundSign(cmdl);
+  string cmd_str(cmdl);
+  int index_first_redirect_sign = (int)cmd_str.find_first_of(REDIRECTION_CHAR);
+  int index_last_redirect_sign = (int)cmd_str.find_last_of(REDIRECTION_CHAR);
+
+  file_path = _trim(cmd_str.substr(index_last_redirect_sign+1));
+  redirection_cmd =  _trim(cmd_str.substr(0, index_first_redirect_sign));
+  //check for mode
+  if(cmd_str[index_first_redirect_sign+1]==cmd_str[index_last_redirect_sign] && index_first_redirect_sign+1 <= (int)cmd_str.size()){
+    append_mode=true;
+  }
+}
+
+RedirectionCommand::execute(){
+
 }
