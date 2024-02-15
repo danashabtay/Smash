@@ -307,10 +307,6 @@ void SmallShell::changePrevDir(std::string Dir){
   this->prevDir = Dir;
 }
 
-JobsList SmallShell::getJobs(){
-  return this->jobs;
-}
-
 
 //jobList:
  
@@ -762,7 +758,7 @@ void KillCommand::execute() {
     }
     else if (num_sig == SIGKILL) {
       SmallShell& smash = SmallShell::getInstance();
-      smash.getJobs().removeJobById(job_id);
+      jobs_list.removeJobById(job_id);
     }
     else if(num_sig == SIGCONT) {
       job->setAsResumed();

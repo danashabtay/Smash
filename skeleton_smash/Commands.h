@@ -220,7 +220,6 @@ class SmallShell {
   void changePrompt(std::string prompt);
   std::string getPrevDir();
   void changePrevDir(std::string Dir);
-  JobsList getJobs();
   // TODO: add extra methods as needed
 };
 
