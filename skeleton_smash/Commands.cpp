@@ -264,10 +264,13 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   else if (firstWord.compare("quit") == 0) {
     return new QuitCommand(cmd_line, &(this->jobs));
   }
+  else if (firstWord.compare("kill") == 0) {
+    return new KillCommand(cmd_line, &(this->jobs));
+  }
  // add more commands
-  // else {
-  //   return new ExternalCommand(cmd_line);
-  // }
+  else {
+    return new ExternalCommand(cmd_line);
+  }
   return nullptr;
 }
 
@@ -775,4 +778,68 @@ void KillCommand::execute() {
 
 BuiltInCommand::BuiltInCommand(const char *cmd_line) : Command(cmd_line) {
   this->is_bg_coomand=false;
+}
+
+// external:
+
+ExternalCommand::ExternalCommand(const char *cmd_line) : Command(cmd_line){}
+
+bool isComplexCommand(const char* command) {
+    // Check if the command contains wildcard characters (* or ?)
+    return (strchr(command, '*') != nullptr || strchr(command, '?') != nullptr);
+}
+
+void ExternalCommand::execute() {
+  SmallShell &smash = SmallShell::getInstance();
+  pid_t new_pid = fork();
+  if (new_pid < 0){
+     SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, FORK);
+  }
+  else if (new_pid > 0){ //father:
+    // if bg command add to jobs list:
+    if(this->getCommand().compare("") != 0) {
+    smash.jobs.addJob(this,new_pid,false);
+    }
+    // if not bg then set as current command and remove from jobs list:
+    if(!this->isBgCommand()){
+    smash.current_job = smash.jobs.getJobByPid(new_pid);
+    int id = smash.current_job->getJobId();
+    smash.joubs.removeJobById(id);
+    waitpid(new_pid, NULL, WUNTRACED);
+    smash.current_job = nullptr;
+    }
+  }
+  else { //son:
+    if(this->getCommand().compare("") != 0) {
+    {
+    if(isComplexCommand(this->getCommand())) {
+      //simple command:
+      char* args[SMASH_MAX_PATH+1];
+      int arg_count = 0;
+      char *token = strtok(cmd_line, WHITESPACE); 
+      while (token != NULL && arg_count < SMASH_MAX_ARGS) {
+          args[arg_count++] = token;
+          token = strtok(NULL, WHITESPACE);
+      }
+      args[arg_count] = NULL; // Null-terminate the array of arguments
+      execv(args[0], args+1);
+      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, EXECV);
+      
+    }
+    else{
+      //complex command:
+      setpgrp();
+      char cmd_args[SMASH_MAX_PATH+1];
+      strcpy(cmd_args, this->getCommand().c_str());
+      char bash_path[SMASH_BIG_PATH+1];
+      strcpy(bash_path, SMASH_BASH_PATH);
+      char c_arg[SMASH_BIG_PATH+1];
+      strcpy(c_arg, SMASH_C_ARG);
+      char *args[] = {bash_path, c_arg, cmd_args, NULL};
+      execv(SMASH_BASH_PATH, args);
+      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, EXECV);
+    }
+    }
+    exit(0); 
+  }
 }

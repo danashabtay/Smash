@@ -193,7 +193,6 @@ class ChmodCommand : public BuiltInCommand {
   void execute() override;
 };
 
-
 class SmallShell {
  private:
   std::string prevCommand;
