@@ -871,5 +871,14 @@ RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line)
 }
 
 RedirectionCommand::execute(){
-
+  int old_fd=dup(STDOUT_FILENO);
+  int new_fd=0;
+  if(){
+    if (append_mode){
+        fd = open(this->file_part.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0777);
+    }
+    else{
+        fd = open(this->file_part.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0777);
+    }
+  }
 }
