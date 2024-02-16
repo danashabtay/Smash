@@ -811,16 +811,24 @@ void ExternalCommand::execute() {
   else if (new_pid > 0){ //father:
     // if bg command add to jobs list:
     if(this->getFullCommand().compare("") != 0) {
-    smash.jobs.addJob(this,new_pid,false);
-    smash.jobs->printJobsList();
+    if(this->isBgCommand()){
+      smash.jobs.addJob(this,new_pid,false);
     }
+    smash.jobs->printJobsList();
     // if not bg then set as current command and remove from jobs list:
-    if(!this->isBgCommand()){
-    smash.current_job = smash.jobs.getJobByPid(new_pid);
-    int id = smash.current_job->getJobId();
-    smash.jobs.removeJobById(id);
-    waitpid(new_pid, NULL, WUNTRACED);
-    smash.current_job = nullptr;
+    else if(!this->isBgCommand()){
+      int newJobId = smash.jobs->getMaxJobId()+1;
+      shared_ptr<JobEntry> new_job(nullptr);
+      try{
+        new_job = make_shared<JobEntry>(newJobId,new_pid,false,this->getIsTimed(),this->getDuration(),this->getFullCommand());
+      }
+      catch(const std::bad_alloc& e){
+        cout << e.what() << endl;
+      }
+      smash.current_job = new_job;
+      int id = smash.current_job->getJobId();
+      waitpid(new_pid, NULL, WUNTRACED);
+      smash.current_job = nullptr;
     }
   }
   else { //son:
