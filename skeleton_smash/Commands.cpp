@@ -812,7 +812,6 @@ void ExternalCommand::execute() {
     // if bg command add to jobs list:
     if(this->getFullCommand().compare("") != 0) {
     smash.jobs.addJob(this,new_pid,false);
-    smash.jobs.printJobsList();
     }
     // if not bg then set as current command and remove from jobs list:
     if(!this->isBgCommand()){
@@ -822,6 +821,7 @@ void ExternalCommand::execute() {
     waitpid(new_pid, NULL, WUNTRACED);
     smash.current_job = nullptr;
     }
+    smash.jobs.printJobsList();
   }
   else { //son:
     if(this->getFullCommand().compare("") != 0) {
