@@ -871,7 +871,7 @@ RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line)
   }
 }
 
-RedirectionCommand::execute(){
+void RedirectionCommand::execute(){
   int old_fd=dup(STDOUT_FILENO);
   int new_fd=0;
   if(){
@@ -886,7 +886,7 @@ RedirectionCommand::execute(){
 
 // chmod:
 
-ChmodCommand::ChmodCommand(const char* cmd_line) : Command(cmd_line) {}
+ChmodCommand::ChmodCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
 bool isValidFileMode(const std::string& fileMode) {
     // Check if the file mode is either three or four characters long
@@ -904,7 +904,7 @@ bool isValidFileMode(const std::string& fileMode) {
     return true;
 }
 
-ChmodCommand::execute() {
+void ChmodCommand::execute() {
   std::string cmd = _trim(string(this->getCommandWOBg()));
   cmd = removeFirstWord(cmd);
   std::string mod_s = getFirstWord(cmd);
