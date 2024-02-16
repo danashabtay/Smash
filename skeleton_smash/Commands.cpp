@@ -928,7 +928,7 @@ ChmodCommand::ChmodCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
 bool isValidFileMode(const std::string& fileMode) {
     // Check if the file mode is either three or four characters long
-    if (fileMode.empty() || ׂׂ(ׂfileMode.length() != 3 && fileMode.length() != 4)) {
+    if (fileMode.empty() || (fileMode.length() != 3 && fileMode.length() != 4)) {
         return false;
     }
 
