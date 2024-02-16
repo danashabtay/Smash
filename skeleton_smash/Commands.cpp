@@ -470,7 +470,6 @@ void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
   this->removeFinishedJobs();
   int newJobId = this->getMaxJobId()+1;
   shared_ptr<JobEntry> new_job(nullptr);
-  cout<< "here: " << cmd->getFullCommand() << endl;
     try{
         new_job = make_shared<JobEntry>(newJobId,pid,isStopped,cmd->getIsTimed(),cmd->getDuration(),cmd->getFullCommand());
     }
@@ -795,7 +794,7 @@ BuiltInCommand::BuiltInCommand(const char *cmd_line) : Command(cmd_line) {
 
 // external:
 
-ExternalCommand::ExternalCommand(const char *cmd_line) : Command(cmd_line){}
+ExternalCommand::ExternalCommand(const char *cmd_line) : Command(cmd_line){ cout << "ex: " << cmd_line<< endl;}
 
 bool isComplexCommand(const char* command) {
     // Check if the command contains wildcard characters (* or ?)
