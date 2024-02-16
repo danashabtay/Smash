@@ -916,8 +916,8 @@ void ChmodCommand::execute() {
     SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, CHMOD);
     return;
   }
-  int mode = strtol(permissions, NULL, 8); // Convert permissions string to octal integer
-    if (chmod(path, mode) == -1) {
+  int mode = strtol(mod_s.c_str(), NULL, 8); // Convert permissions string to octal integer
+    if (chmod(path.c_str(), mode) == -1) {
         SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CHMOD);
         return;
     }
