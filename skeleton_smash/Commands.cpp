@@ -239,7 +239,6 @@ SmallShell::~SmallShell() {
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
 Command * SmallShell::CreateCommand(const char* cmd_line) {
-
   string cmd_s = _trim(string(cmd_line));
   if (cmd_s[cmd_s.length() - 1] == '&'){
         cmd_s = _trim(cmd_s.substr(0, cmd_s.length() - 1));
@@ -292,6 +291,7 @@ void SmallShell::executeCommand(const char *cmd_line) {
   }
   // if (external || pipe)
   // need to fork
+  this->jobs.removeFinishedJobs();
   cmd->execute();
   delete cmd;
   // Please note that you must fork smash process for some commands (e.g., external commands....)
@@ -643,6 +643,7 @@ JobsCommand::JobsCommand(const char *cmd_line, JobsList *jobs) : BuiltInCommand(
 void JobsCommand::execute()
 {
     SmallShell &smash = SmallShell::getInstance();
+    smash.jobs.removeFinishedJobs();
     smash.jobs.printJobsList();
 }
 
@@ -925,7 +926,7 @@ ChmodCommand::ChmodCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
 bool isValidFileMode(const std::string& fileMode) {
     // Check if the file mode is either three or four characters long
-    if (fileMode.empty() || fileMode.length() != 3 && fileMode.length() != 4) {
+    if (fileMode.empty() || ׂׂ(ׂfileMode.length() != 3 && fileMode.length() != 4)) {
         return false;
     }
 
