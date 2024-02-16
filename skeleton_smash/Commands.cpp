@@ -58,6 +58,7 @@ using namespace std;
 #define TOUCH     "touch"
 #define UTIME     "utime"
 #define MKTIME    "mktime"
+#define CHMOD     "chmod"
 
 
 #define SMASH_PRINT_WITH_PERROR(ERR, CMD)                       perror(ERR(CMD));
@@ -881,4 +882,43 @@ RedirectionCommand::execute(){
         fd = open(this->file_part.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0777);
     }
   }
+}
+
+// chmod:
+
+ChmodCommand::ChmodCommand(const char* cmd_line) : Command(cmd_line) {}
+
+bool isValidFileMode(const std::string& fileMode) {
+    // Check if the file mode is either three or four characters long
+    if (fileMode.empty() || fileMode.length() != 3 && fileMode.length() != 4) {
+        return false;
+    }
+
+    // Check if each character is between '0' and '7'
+    for (char digit : fileMode) {
+        if (digit < '0' || digit > '7') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+ChmodCommand::execute() {
+  std::string cmd = _trim(string(this->getCommandWOBg()));
+  cmd = removeFirstWord(cmd);
+  std::string mod_s = getFirstWord(cmd);
+  std::string path = getFirstWord(removeFirstWord(cmd));
+
+//check if it is a valid mode:
+  if(!isValidFileMode(mod_s.c_str())){
+    SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, CHMOD);
+    return;
+  }
+  int mode = strtol(permissions, NULL, 8); // Convert permissions string to octal integer
+    if (chmod(path, mode) == -1) {
+        SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CHMOD);
+        return;
+    }
+    return;
 }
