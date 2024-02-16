@@ -279,6 +279,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   
  // External commands:
   else {
+    cout << "ext: " << cmd_line << endl;
     return new ExternalCommand(cmd_line);
   }
   return nullptr;
@@ -794,7 +795,7 @@ BuiltInCommand::BuiltInCommand(const char *cmd_line) : Command(cmd_line) {
 
 // external:
 
-ExternalCommand::ExternalCommand(const char *cmd_line) : Command(cmd_line){ cout << "ex: " << cmd_line<< endl;}
+ExternalCommand::ExternalCommand(const char *cmd_line) : Command(cmd_line){}
 
 bool isComplexCommand(const char* command) {
     // Check if the command contains wildcard characters (* or ?)
