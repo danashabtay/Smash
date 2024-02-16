@@ -185,7 +185,6 @@ int extractNumber(const std::string& str) {
 
   Command::Command(const char* cmd_line) : full_command(cmd_line), command_without_bg(cmd_line), is_bg_coomand(false) {
     this->full_command = cmd_line;
-    cout << "before: " << this->full_command << endl;
     this->duration = extractNumber(cmd_line);
     this->is_Timed = false;
     if(duration){
@@ -195,7 +194,6 @@ int extractNumber(const std::string& str) {
       this->is_bg_coomand = true;
       char* cmd_line_copy = strdup(cmd_line);
       _removeBackgroundSign(cmd_line_copy);
-      cout << "after: " << this->full_command << endl;
       this->command_without_bg = cmd_line_copy;
       delete cmd_line_copy;
     }
