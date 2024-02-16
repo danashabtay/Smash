@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <iomanip>
 #include <algorithm>
+#include <sys/stat.h>
 #include "Commands.h"
 
 using namespace std;
