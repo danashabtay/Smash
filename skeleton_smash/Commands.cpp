@@ -412,11 +412,13 @@ int JobsList::getJobsNum() const
 
 void JobsList::removeJobById(const int& jobId)
 {
+          cout << "here" << endl;
     if(jobId <= 0){
         return;
     }
     for (auto iter = jobsList.begin(); iter != jobsList.end();) {
         if ((*iter)->getJobId() == jobId){
+          cout << "erase" << endl;
             iter = jobsList.erase(iter);
         }
         else{
