@@ -491,7 +491,7 @@ void JobsList::printJobsList() {
 } 
 
 void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
-  cout << this->jobsList->printJobsList() << endl;
+  cout << this->jobsList.printJobsList() << endl;
   this->removeFinishedJobs();
   int newJobId = this->getMaxJobId()+1;
   shared_ptr<JobEntry> new_job(nullptr);
