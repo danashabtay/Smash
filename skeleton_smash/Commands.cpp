@@ -493,10 +493,10 @@ void JobsList::printJobsList() {
         time(&current_time);
         time_t elapsed_time = difftime(current_time, job->getInsertTime());
 
-        if (job->isTimed())
-        {
-            jobToPrint = "timeout " + std::to_string(job->getDuration()) + " " + job->getCommand();
-        }
+        // if (job->isTimed())
+        // {
+        //     jobToPrint = "timeout " + std::to_string(job->getDuration()) + " " + job->getCommand();
+        // }
 
         cout << "[" <<  job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
         if(job->jobWasStopped()){
