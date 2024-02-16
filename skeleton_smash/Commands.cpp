@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <iomanip>
 #include <algorithm>
+#include <fcntl.h> 
 #include "Commands.h"
 
 using namespace std;
@@ -870,15 +871,48 @@ RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line)
   }
 }
 
-RedirectionCommand::execute(){
-  int old_fd=dup(STDOUT_FILENO);
+void RedirectionCommand::execute(){
+  int old_fd=dup(STDOUT_FILENO);  //saving old fd of stdout
+  if (old_fd==-1){
+    SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR,DUP);
+    return;
+  }
   int new_fd=0;
-  if(){
     if (append_mode){
-        fd = open(this->file_part.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0777);
+        new_fd = open(this->file_path.c_str(),O_WRONLY | O_CREAT | O_APPEND, 0777);
     }
     else{
-        fd = open(this->file_part.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0777);
+        new_fd = open(this->file_path.c_str(),O_WRONLY | O_CREAT | O_TRUNC, 0777);
     }
+  if (new_fd==-1){
+     SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR,OPEN);
+    return;
   }
+
+//making 'stdout' refer to the file given in the command 
+  if (dup2(new_fd,STDOUT_FILENO)==-1){
+    SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR,CLOSE);
+    return;
+  }
+
+  //closing the file 
+  if (close(new_fd)==-1){
+    SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR,CLOSE);
+    return;
+  }
+
+  //command execution
+    SmallShell::getInstance().executeCommand(this->redirection_cmd.c_str());
+    // changing back stdout to its right position:
+    if (dup2(old_fd, STDOUT_FILENO) == -1){
+        SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, DUP);
+        close(old_fd);
+        return;
+    }
+
+    //closing:
+      if (close(old_fd) == -1){
+        SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CLOSE);
+        return;
+    }
 }
