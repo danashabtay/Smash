@@ -185,6 +185,7 @@ int extractNumber(const std::string& str) {
 
   Command::Command(const char* cmd_line) : full_command(cmd_line), command_without_bg(cmd_line), is_bg_coomand(false) {
     this->full_command = cmd_line;
+    cout << "before: " << this->full_command << endl;
     this->duration = extractNumber(cmd_line);
     this->is_Timed = false;
     if(duration){
@@ -194,6 +195,7 @@ int extractNumber(const std::string& str) {
       this->is_bg_coomand = true;
       char* str =  const_cast<char*>(cmd_line);
       _removeBackgroundSign(str);
+      cout << "after: " << this->full_command << endl;
       this->command_without_bg = str; 
     }
     else{
@@ -279,7 +281,6 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   
  // External commands:
   else {
-    cout << "ext: " << cmd_line << endl;
     return new ExternalCommand(cmd_line);
   }
   return nullptr;
