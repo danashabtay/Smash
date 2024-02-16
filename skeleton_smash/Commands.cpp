@@ -184,6 +184,7 @@ int extractNumber(const std::string& str) {
 }
 
   Command::Command(const char* cmd_line) : full_command(cmd_line), command_without_bg(cmd_line), is_bg_coomand(false) {
+    cout << cmd_line << endl;
     this->full_command = cmd_line;
     this->duration = extractNumber(cmd_line);
     this->is_Timed = false;
@@ -194,6 +195,7 @@ int extractNumber(const std::string& str) {
       this->is_bg_coomand = true;
       char* str =  const_cast<char*>(cmd_line);
       _removeBackgroundSign(str);
+      this->command_without_bg = str; 
     }
     else{
         this->is_bg_coomand = false;
@@ -244,7 +246,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
         cmd_s = _trim(cmd_s.substr(0, cmd_s.length() - 1));
     }
     //checking if there is a redirection request
-       if (cmd_s.find(REDIRECTION_CHAR) != string::npos)
+  if (cmd_s.find(REDIRECTION_CHAR) != string::npos)
     {
         return new RedirectionCommand(cmd_line);
     }
