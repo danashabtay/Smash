@@ -412,13 +412,11 @@ int JobsList::getJobsNum() const
 
 void JobsList::removeJobById(const int& jobId)
 {
-          cout << "here" << endl;
     if(jobId <= 0){
         return;
     }
     for (auto iter = jobsList.begin(); iter != jobsList.end();) {
         if ((*iter)->getJobId() == jobId){
-          cout << "erase" << endl;
             iter = jobsList.erase(iter);
         }
         else{
@@ -470,6 +468,7 @@ JobsList::~JobsList() {}
 
 
 void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
+  cout << this->printJobsList() << endl;
   this->removeFinishedJobs();
   int newJobId = this->getMaxJobId()+1;
   shared_ptr<JobEntry> new_job(nullptr);
