@@ -817,16 +817,7 @@ void ExternalCommand::execute() {
     smash.jobs->printJobsList();
     // if not bg then set as current command and remove from jobs list:
     else if(!this->isBgCommand()){
-      int newJobId = smash.jobs->getMaxJobId()+1;
-      shared_ptr<JobEntry> new_job(nullptr);
-      try{
-        new_job = make_shared<JobEntry>(newJobId,new_pid,false,this->getIsTimed(),this->getDuration(),this->getFullCommand());
-      }
-      catch(const std::bad_alloc& e){
-        cout << e.what() << endl;
-      }
-      smash.current_job = new_job;
-      int id = smash.current_job->getJobId();
+      // set smash current job
       waitpid(new_pid, NULL, WUNTRACED);
       smash.current_job = nullptr;
     }
