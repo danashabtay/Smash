@@ -830,7 +830,7 @@ void ExternalCommand::execute() {
       char* args[SMASH_MAX_PATH+1];
       int arg_count = 0;
       char* stringToTokenize = new char[SMASH_MAX_PATH+1]; //for converting from string to char*. size as path size
-      strcpy(stringToTokenize,this->getFullCommand().c_str());
+      strcpy(stringToTokenize,_trim(this->getFullCommand()).c_str());
       char *token = strtok(stringToTokenize, WHITESPACE.c_str()); 
       while (token != NULL && arg_count < SMASH_MAX_ARGS) { //each element in args is a "word" in the command
           args[arg_count++] = token;
