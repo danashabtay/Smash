@@ -193,10 +193,11 @@ int extractNumber(const std::string& str) {
     }
     if(_isBackgroundComamnd(cmd_line)){
       this->is_bg_coomand = true;
-      char* str =  const_cast<char*>(cmd_line);
-      _removeBackgroundSign(str);
+      char* cmd_line_copy = strdup(cmd_line);
+      _removeBackgroundSign(cmd_line_copy);
       cout << "after: " << this->full_command << endl;
-      this->command_without_bg = str; 
+      this->command_without_bg = cmd_line_copy;
+      delete cmd_line_copy;
     }
     else{
         this->is_bg_coomand = false;
