@@ -491,7 +491,6 @@ void JobsList::printJobsList() {
 } 
 
 void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
-  cout << this->jobsList.printJobsList() << endl;
   this->removeFinishedJobs();
   int newJobId = this->getMaxJobId()+1;
   shared_ptr<JobEntry> new_job(nullptr);
@@ -807,6 +806,10 @@ bool isComplexCommand(const char* command) {
 
 void ExternalCommand::execute() {
   SmallShell &smash = SmallShell::getInstance();
+
+    smash.jobs.printJobsList();
+
+
   pid_t new_pid = fork();
   if (new_pid < 0){
      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, FORK);
@@ -824,7 +827,6 @@ void ExternalCommand::execute() {
     waitpid(new_pid, NULL, WUNTRACED);
     smash.current_job = nullptr;
     }
-    smash.jobs.printJobsList();
   }
   else { //son:
     if(this->getFullCommand().compare("") != 0) {
