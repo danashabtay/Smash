@@ -467,24 +467,7 @@ JobsList::JobsList() : jobsList() {}
 JobsList::~JobsList() {}
 
 
-void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
-  cout << this->printJobsList() << endl;
-  this->removeFinishedJobs();
-  int newJobId = this->getMaxJobId()+1;
-  shared_ptr<JobEntry> new_job(nullptr);
-    try{
-        new_job = make_shared<JobEntry>(newJobId,pid,isStopped,cmd->getIsTimed(),cmd->getDuration(),cmd->getFullCommand());
-    }
-    catch(const std::bad_alloc& e){
-        cout << e.what() << endl;
-    }
-    this->jobsList.push_back(new_job);
-}
-  
-  bool JobsList::JobEntry::jobWasStopped()
-{
-    return this->isStopped();
-}
+
 
 void JobsList::printJobsList() {
   std::sort(jobsList.begin(), jobsList.end(), JobsList::JobIsBigger());
@@ -506,6 +489,25 @@ void JobsList::printJobsList() {
         cout << endl;
     }
 } 
+
+void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
+  cout << this->printJobsList() << endl;
+  this->removeFinishedJobs();
+  int newJobId = this->getMaxJobId()+1;
+  shared_ptr<JobEntry> new_job(nullptr);
+    try{
+        new_job = make_shared<JobEntry>(newJobId,pid,isStopped,cmd->getIsTimed(),cmd->getDuration(),cmd->getFullCommand());
+    }
+    catch(const std::bad_alloc& e){
+        cout << e.what() << endl;
+    }
+    this->jobsList.push_back(new_job);
+}
+  
+  bool JobsList::JobEntry::jobWasStopped()
+{
+    return this->isStopped();
+}
 
 void JobsList::removeFinishedJobs() {
 {
