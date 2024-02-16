@@ -184,7 +184,6 @@ int extractNumber(const std::string& str) {
 }
 
   Command::Command(const char* cmd_line) : full_command(cmd_line), command_without_bg(cmd_line), is_bg_coomand(false) {
-    cout << cmd_line << endl;
     this->full_command = cmd_line;
     this->duration = extractNumber(cmd_line);
     this->is_Timed = false;
@@ -471,6 +470,7 @@ void JobsList::addJob(Command* cmd, const pid_t& pid, bool isStopped){
   this->removeFinishedJobs();
   int newJobId = this->getMaxJobId()+1;
   shared_ptr<JobEntry> new_job(nullptr);
+  cout<< "here: " << cmd->getFullCommand() << endl;
     try{
         new_job = make_shared<JobEntry>(newJobId,pid,isStopped,cmd->getIsTimed(),cmd->getDuration(),cmd->getFullCommand());
     }
