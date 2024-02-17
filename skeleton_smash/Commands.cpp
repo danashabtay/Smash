@@ -1181,8 +1181,7 @@ void PipeCommand::execute(){
     }
     if (waitpid(pid,nullptr,0));
     }
-  }
-
+    
   //son
   else if(pid == 0){
     if(dup2(pipe_in_out[0],STDIN_FILENO)==-1){ //making the first end of the pipe be stdin
@@ -1202,3 +1201,4 @@ void PipeCommand::execute(){
   }
 }
 }
+
