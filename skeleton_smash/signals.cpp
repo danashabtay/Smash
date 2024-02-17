@@ -6,11 +6,11 @@
 using namespace std;
 
 void ctrlCHandler(int sig_num) {
-  cout << "got ctrl-C" << endl;
+  cout << "smash: got ctrl-C" << endl;
   SmallShell &smash = SmallShell::getInstance();
   if (smash.current_job != nullptr){
     kill(smash.current_job->getPid(), SIGKILL);
-    cout << "process " << smash.current_job->getPid() << " was killed" << endl;
+    cout << "smash: process " << smash.current_job->getPid() << " was killed" << endl;
     smash.current_job = nullptr;
     // is it in jobslist? if so remove.
   }

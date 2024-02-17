@@ -558,21 +558,22 @@ void JobsList::printJobsList()
     string jobToPrint = job->getCommand();
     time_t current_time;
     time(&current_time);
-    time_t elapsed_time = difftime(current_time, job->getInsertTime());
+    //time_t elapsed_time = difftime(current_time, job->getInsertTime());
 
     // if (job->isTimed())
     // {
     //     jobToPrint = "timeout " + std::to_string(job->getDuration()) + " " + job->getCommand();
     // }
 
-    cout << "[" << job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
-    if (job->jobWasStopped())
-    {
-      cout << " (stopped)";
+        cout << "[" <<  job->getJobId() << "] " << jobToPrint;
+        //cout << "[" <<  job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
+        if(job->jobWasStopped()){
+            cout << " (stopped)";
+        }
+        cout << endl;
     }
-    cout << endl;
-  }
-}
+} 
+
 
 void JobsList::removeFinishedJobs()
 {
