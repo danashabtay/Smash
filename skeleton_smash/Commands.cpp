@@ -849,7 +849,6 @@ void KillCommand::execute()
     try
     {
       job_id = stoi(args[2]); // check if works
-      cout << "job id: " << job_id << endl;
     }
     catch (std::invalid_argument &)
     {
@@ -869,7 +868,6 @@ void KillCommand::execute()
       try
       {
         num_sig = stoi(string(args[1]).substr(1));
-        cout << "sig num: " << num_sig << endl;
       }
       catch (std::invalid_argument &)
       {
