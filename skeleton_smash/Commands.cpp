@@ -619,6 +619,7 @@ ChPromptCommand::ChPromptCommand(const char *cmd_line) : BuiltInCommand(cmd_line
 {
   std::string cmd = _trim(string(this->getCommandWOBg()));
   cmd = removeFirstWord(cmd);
+  cmd = getFirstWord(cmd);
   if (cmd.length() > 0)
   {
     this->prompt = cmd + "> ";
