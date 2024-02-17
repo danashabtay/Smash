@@ -491,14 +491,15 @@ void JobsList::printJobsList() {
         string jobToPrint = job->getCommand();
         time_t current_time;
         time(&current_time);
-        time_t elapsed_time = difftime(current_time, job->getInsertTime());
+        //time_t elapsed_time = difftime(current_time, job->getInsertTime());
 
         // if (job->isTimed())
         // {
         //     jobToPrint = "timeout " + std::to_string(job->getDuration()) + " " + job->getCommand();
         // }
 
-        cout << "[" <<  job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
+        cout << "[" <<  job->getJobId() << "] " << jobToPrint;
+        //cout << "[" <<  job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
         if(job->jobWasStopped()){
             cout << " (stopped)";
         }
@@ -812,7 +813,7 @@ void ExternalCommand::execute() {
     // if bg command add to jobs list:
     if(this->getFullCommand().compare("") != 0) {
     smash.jobs.addJob(this,new_pid,false);
-    cout << smash.jobs.printJobsList() << endl;
+    //cout << smash.jobs.printJobsList() << endl;
     }
     // if not bg then set as current command and remove from jobs list:
     if(!this->isBgCommand()){
