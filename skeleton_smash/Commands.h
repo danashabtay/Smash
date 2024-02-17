@@ -135,7 +135,7 @@ class JobsList {
   bool operator!=(JobEntry& other);
   };
 
- private:
+ public: // TODO
     std::vector<std::shared_ptr<JobEntry>> jobsList;
  // TODO: Add your data members
  public:
