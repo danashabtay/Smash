@@ -46,6 +46,11 @@ class ExternalCommand : public Command {
 
 class PipeCommand : public Command {
   // TODO: Add your data members
+  int pipe_in_out[2];
+  std::string pipe_first_half;
+  std::string pipe_second_half;
+  int fd_used;
+
  public:
   PipeCommand(const char* cmd_line);
   virtual ~PipeCommand() {}

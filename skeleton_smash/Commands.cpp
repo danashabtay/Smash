@@ -269,6 +269,12 @@ Command *SmallShell::CreateCommand(const char *cmd_line)
   {
     return new RedirectionCommand(cmd_line);
   }
+
+  else if{cmd_s.find(PIPE_CHAR) != string::npos)
+  {
+    return new PipeCommand(cmd_line);
+  }
+
   string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
 
   // built-in commnads:
@@ -1119,4 +1125,79 @@ void ChmodCommand::execute()
     return;
   }
   return;
+}
+
+PipeCommand::PipeCommand(const char *cmd_line) : Command(cmd_line){
+  int pipe_sign = (int)((string)cmd_line).find_last_of(PIPE_CHAR);
+  pipe_first_half = (string)cmd_line.substr(0,pipe_sign);
+  int stderr_pipe_sign = (int)((string)cmd_line).find(STDERR_PIPE_PREFIX)
+  if (stderr_pipe_sign == (int)string::npos){
+    pipe_second_half= (string)cmd_line.substr(pipe_sign+1);
+    fd_used = STDOUT_FILENO;
+  }
+  else{
+     pipe_second_half= (string)cmd_line.substr(pipe_sign+2);
+      fd_used = STDOUT_FILENO;
+  }
+}
+
+void PipeCommand::execute(){
+  //creating a new pipe
+  if (pipe(pipe_in_out)==-1){
+    SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, PIPE);
+  }
+  pid_t pid = fork();
+  if(pid == -1){
+    SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, FORK);
+  }
+  //father
+  if (pid > 0){
+    int new_fd=dup(fd_used);
+    if(new_fd==-1){
+       SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, DUP);
+       } 
+
+    if (dup2(pipe_in_out[1], fd_used)==-1)
+    {
+      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, DUP2);
+    }
+    if (close(pipe_in_out[0])==-1)
+    {
+      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CLOSE);
+    }
+
+    if (close(pipe_in_out[1])==-1)
+    {
+      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CLOSE);
+    }
+    SmallShell::getInstance().executeCommand(pipe_first_half.c_str());
+    if (dup2(new_fd, fd_used)==-1)
+    {
+     SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, DUP2);
+    }
+    if (close(new_fd)==-1)
+    {
+      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CLOSE);
+    }
+    if (waitpid(pid,nullptr,0));
+    }
+  }
+
+  //son
+  else if(pid == 0){
+    if(dup2(pipe_in_out[0],STDIN_FILENO)==-1){ //making the first end of the pipe be stdin
+      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, DUP2);
+    } 
+       if (close(pipe_in_out[0])==-1)
+    {
+     SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CLOSE);
+
+    if (close(pipe_in_out[1])==-1)
+    {
+      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CLOSE);
+    }
+
+    SmallShell::getInstance().executeCommand(pipe_second_half.c_str());
+    exit(0);
+  }
 }
