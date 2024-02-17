@@ -573,14 +573,7 @@ void JobsList::printJobsList()
         cout << endl;
     }
 } 
-    cout << "[" << job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
-    if (job->jobWasStopped())
-    {
-      cout << " (stopped)";
-    }
-    cout << endl;
-  }
-}
+
 
 void JobsList::removeFinishedJobs()
 {
