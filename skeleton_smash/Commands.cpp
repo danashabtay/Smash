@@ -270,7 +270,7 @@ Command *SmallShell::CreateCommand(const char *cmd_line)
     return new RedirectionCommand(cmd_line);
   }
 
-  else if{cmd_s.find(PIPE_CHAR) != string::npos)
+  else if{(cmd_s.find(PIPE_CHAR) != string::npos)
   {
     return new PipeCommand(cmd_line);
   }
