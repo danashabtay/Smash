@@ -63,7 +63,6 @@ using namespace std;
 #define CHMOD "chmod"
 #define EXECVP "execvp"
 
-
 #define SMASH_PRINT_WITH_PERROR(ERR, CMD) perror(ERR(CMD));
 #define SMASH_PRINT_ERROR(ERR, CMD) cerr << ERR(CMD) << endl;
 #define SMASH_PRINT_ERROR_JOB_ID(ERR_START, ERR_END, CMD, ID) cerr << ERR_START(CMD) << ID << ERR_END << endl;
@@ -206,7 +205,7 @@ Command::Command(const char *cmd_line) : full_command(cmd_line), command_without
     char *cmd_line_copy = strdup(cmd_line);
 
     _removeBackgroundSign(cmd_line_copy);
-    
+
     this->command_without_bg = cmd_line_copy;
     // TODO - free(cmd_line_copy) on distructor.
   }
@@ -558,22 +557,22 @@ void JobsList::printJobsList()
     string jobToPrint = job->getCommand();
     time_t current_time;
     time(&current_time);
-    //time_t elapsed_time = difftime(current_time, job->getInsertTime());
+    // time_t elapsed_time = difftime(current_time, job->getInsertTime());
 
     // if (job->isTimed())
     // {
     //     jobToPrint = "timeout " + std::to_string(job->getDuration()) + " " + job->getCommand();
     // }
 
-        cout << "[" <<  job->getJobId() << "] " << jobToPrint;
-        //cout << "[" <<  job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
-        if(job->jobWasStopped()){
-            cout << " (stopped)";
-        }
-        cout << endl;
+    cout << "[" << job->getJobId() << "] " << jobToPrint;
+    // cout << "[" <<  job->getJobId() << "] " << jobToPrint << " : " << job->getPid() << " " << elapsed_time << " secs";
+    if (job->jobWasStopped())
+    {
+      cout << " (stopped)";
     }
-} 
-
+    cout << endl;
+  }
+}
 
 void JobsList::removeFinishedJobs()
 {
@@ -838,46 +837,54 @@ KillCommand::KillCommand(const char *cmd_line, JobsList *jobs) : BuiltInCommand(
 
 void KillCommand::execute()
 {
-  string numSig_s = getFirstWord(removeFirstWord(this->getFullCommand()));
-  string job_id_s = getFirstWord(removeFirstWord(numSig_s));
-  string remaining = removeFirstWord(job_id_s); // supposed to be empty.
+  char *args[25] = {nullptr};
+  int num_args = _parseCommandLine((this->getCommandWOBg()).c_str(), args);
   int job_id = 0;
   int num_sig = 0;
+  pid_t pid = 0;
+  std::shared_ptr<JobsList::JobEntry> job = nullptr;
 
-  try
+  if (num_args > 2)
   {
-    job_id = stoi(job_id_s); // check if works
+    try
+    {
+      job_id = stoi(args[2]); // check if works
+      cout << "job id: " << job_id << endl;
+    }
+    catch (std::invalid_argument &)
+    {
+      SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
+      return;
+    }
+
+    job = jobs_list->getJobById(job_id);
+    if (job == nullptr)
+    {
+      SMASH_PRINT_ERROR_JOB_ID(SMASH_JOB_ID_DOES_NOT_EXISTS_ERROR_START, SMASH_JOB_ID_DOES_NOT_EXISTS_ERROR_END, FG, job_id);
+      return;
+    }
+    pid = job->getPid();
+    if (num_args == 3 && args[1][0] == '-')
+    {
+      try
+      {
+        num_sig = stoi(string(args[1]).substr(1));
+        cout << "sig num: " << num_sig << endl;
+      }
+      catch (std::invalid_argument &)
+      {
+        SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
+        return;
+      }
+    }
   }
-  catch (std::invalid_argument &)
+  else
   {
     SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
     return;
   }
 
-  try
-  {
-    num_sig = stoi(numSig_s); // check if works
-  }
-  catch (std::invalid_argument &)
-  {
-    SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
-    return;
-  }
-
-  if (remaining.length() > 0)
-  {
-    SMASH_PRINT_ERROR(SMASH_INVALID_ARGS_ERROR, KILL);
-    return;
-  }
-  // check if a job with this id exists:
-  shared_ptr<JobsList::JobEntry> job = this->jobs_list->getJobById(job_id); // need to add jobbyid & MACROS
-  if (job == nullptr)
-  {
-    SMASH_PRINT_ERROR_JOB_ID(SMASH_JOB_ID_DOES_NOT_EXISTS_ERROR_START, SMASH_JOB_ID_DOES_NOT_EXISTS_ERROR_END, FG, job_id);
-    return;
-  }
-
-  if (kill(job->getPid(), num_sig) == -1)
+  if (kill(pid, num_sig) == -1)
   {
     SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, KILL);
   }
@@ -945,53 +952,54 @@ void ExternalCommand::execute()
   { // son:
     if (this->getFullCommand().compare("") != 0)
     {
-        
-        if (!isComplexCommand(this->getFullCommand().c_str()))
+
+      if (!isComplexCommand(this->getFullCommand().c_str()))
+      {
+        // simple command:
+        // char *args[SMASH_MAX_PATH + 1];
+        // int arg_count = 0;
+        // char *stringToTokenize = new char[SMASH_MAX_PATH + 1]; // for converting from string to char*. size as path size
+        // strcpy(stringToTokenize, _trim(this->getCommandWOBg()).c_str());
+        // char *token = strtok(stringToTokenize, WHITESPACE.c_str());
+        // while (token != NULL && arg_count < SMASH_MAX_ARGS)
+        // { // each element in args is a "word" in the command
+        //   args[arg_count++] = token;
+        //   token = strtok(NULL, WHITESPACE.c_str());
+        // }
+        // delete[] stringToTokenize;
+        // args[arg_count] = NULL; // Null-terminate the array of arguments
+        // //-------
+        // cout << "print " << arg_count << " lines: "<< endl;
+        // for (int i = 0; i < arg_count; i++)
+        // {
+        //   cout << args[i] << endl;
+        // }
+        // //-------
+        // const char* file_name = "./smash";
+        // execvp(file_name, args);
+        // SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, EXECV);
+        setpgrp();
+        char *args[25] = {nullptr};
+        _parseCommandLine(this->getCommandWOBg().c_str(), args);
+        if (execvp(args[0], args) == -1)
         {
-          // simple command:
-          // char *args[SMASH_MAX_PATH + 1];
-          // int arg_count = 0;
-          // char *stringToTokenize = new char[SMASH_MAX_PATH + 1]; // for converting from string to char*. size as path size
-          // strcpy(stringToTokenize, _trim(this->getCommandWOBg()).c_str());
-          // char *token = strtok(stringToTokenize, WHITESPACE.c_str());
-          // while (token != NULL && arg_count < SMASH_MAX_ARGS)
-          // { // each element in args is a "word" in the command
-          //   args[arg_count++] = token;
-          //   token = strtok(NULL, WHITESPACE.c_str());
-          // }
-          // delete[] stringToTokenize;
-          // args[arg_count] = NULL; // Null-terminate the array of arguments
-          // //-------
-          // cout << "print " << arg_count << " lines: "<< endl;
-          // for (int i = 0; i < arg_count; i++)
-          // {
-          //   cout << args[i] << endl;
-          // }
-          // //-------
-          // const char* file_name = "./smash";
-          // execvp(file_name, args);
-          // SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, EXECV);
-          setpgrp();
-          char *args[25] = {nullptr};
-          _parseCommandLine(this->getCommandWOBg().c_str(), args);
-          if (execvp(args[0], args) == -1) {
-            SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, EXECVP);
-          }
+          SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, EXECVP);
         }
-        else
-        {
-          // complex command:
-          setpgrp();
-          char cmd_args[SMASH_MAX_PATH + 1];
-          strcpy(cmd_args, this->getCommandWOBg().c_str());
-          char bash_path[SMASH_BIG_PATH + 1];
-          strcpy(bash_path, SMASH_BASH_PATH);
-          char c_arg[SMASH_BIG_PATH + 1];
-          strcpy(c_arg, SMASH_C_ARG);
-          char *args[] = {bash_path, c_arg, cmd_args, NULL};
-          execv(SMASH_BASH_PATH, args);
-          SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, EXECV);
-        }
+      }
+      else
+      {
+        // complex command:
+        setpgrp();
+        char cmd_args[SMASH_MAX_PATH + 1];
+        strcpy(cmd_args, this->getCommandWOBg().c_str());
+        char bash_path[SMASH_BIG_PATH + 1];
+        strcpy(bash_path, SMASH_BASH_PATH);
+        char c_arg[SMASH_BIG_PATH + 1];
+        strcpy(c_arg, SMASH_C_ARG);
+        char *args[] = {bash_path, c_arg, cmd_args, NULL};
+        execv(SMASH_BASH_PATH, args);
+        SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, EXECV);
+      }
       exit(0);
     }
   }
