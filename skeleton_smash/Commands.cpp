@@ -1132,11 +1132,11 @@ PipeCommand::PipeCommand(const char *cmd_line) : Command(cmd_line){
   pipe_first_half = ((string)cmd_line).substr(0,pipe_sign);
   int stderr_pipe_sign = (int)(((string)cmd_line).find(STDERR_PIPE_PREFIX));
   if (stderr_pipe_sign == (int)string::npos){
-    pipe_second_half= (string)cmd_line.substr(pipe_sign+1);
+    pipe_second_half= ((string)cmd_line).substr(pipe_sign+1);
     fd_used = STDOUT_FILENO;
   }
   else{
-     pipe_second_half= (string)cmd_line.substr(pipe_sign+2);
+     pipe_second_half= ((string)cmd_line).substr(pipe_sign+2);
       fd_used = STDOUT_FILENO;
   }
 }
@@ -1159,7 +1159,7 @@ void PipeCommand::execute(){
 
     if (dup2(pipe_in_out[1], fd_used)==-1)
     {
-      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, DUP2);
+      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CLOSE);
     }
     if (close(pipe_in_out[0])==-1)
     {
@@ -1200,4 +1200,5 @@ void PipeCommand::execute(){
     SmallShell::getInstance().executeCommand(pipe_second_half.c_str());
     exit(0);
   }
+}
 }
