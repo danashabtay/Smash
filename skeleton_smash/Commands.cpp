@@ -1129,8 +1129,8 @@ void ChmodCommand::execute()
 
 PipeCommand::PipeCommand(const char *cmd_line) : Command(cmd_line){
   int pipe_sign = (int)((string)cmd_line).find_last_of(PIPE_CHAR);
-  pipe_first_half = (string)cmd_line.substr(0,pipe_sign);
-  int stderr_pipe_sign = (int)((string)cmd_line).find(STDERR_PIPE_PREFIX)
+  pipe_first_half = ((string)cmd_line).substr(0,pipe_sign);
+  int stderr_pipe_sign = (int)(((string)cmd_line).find(STDERR_PIPE_PREFIX));
   if (stderr_pipe_sign == (int)string::npos){
     pipe_second_half= (string)cmd_line.substr(pipe_sign+1);
     fd_used = STDOUT_FILENO;
@@ -1173,7 +1173,7 @@ void PipeCommand::execute(){
     SmallShell::getInstance().executeCommand(pipe_first_half.c_str());
     if (dup2(new_fd, fd_used)==-1)
     {
-     SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, DUP2);
+     SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CLOSE);
     }
     if (close(new_fd)==-1)
     {
@@ -1186,7 +1186,7 @@ void PipeCommand::execute(){
   //son
   else if(pid == 0){
     if(dup2(pipe_in_out[0],STDIN_FILENO)==-1){ //making the first end of the pipe be stdin
-      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, DUP2);
+      SMASH_PRINT_WITH_PERROR(SMASH_SYSCALL_FAILED_ERROR, CLOSE);
     } 
        if (close(pipe_in_out[0])==-1)
     {
